@@ -40,12 +40,60 @@ const nonResidentRoles: AssociationRoleType[] = [
 
 function getNavItems(buildingId: string) {
   return [
-    { title: 'لوحة التحكم', href: `/buildings/${buildingId}`, icon: LayoutDashboard, mobileIcon: LayoutDashboard, description: 'نظرة عامة على عمليات المبنى', minRole: null },
-    { title: 'القرارات', href: `/buildings/${buildingId}/decisions`, icon: Vote, mobileIcon: Vote, description: 'القرارات المفتوحة والمواعيد والنتائج', minRole: 'owner' as const },
-    { title: 'الصيانة', href: `/buildings/${buildingId}/maintenance`, icon: Wrench, mobileIcon: ClipboardList, description: 'الطلبات والتقدم وقائمة الاستجابة', minRole: null },
-    { title: 'الجمعية', href: `/buildings/${buildingId}/association`, icon: Users, mobileIcon: Users, description: 'أدوار الجمعية والملاك والرسوم', minRole: 'owner' as const },
-    { title: 'المبنى والوحدات', href: `/buildings/${buildingId}/units`, icon: Building2, mobileIcon: Building2, description: 'الوحدات والإشغال وسجلات المبنى', minRole: null },
-    { title: 'المستندات', href: `/buildings/${buildingId}/documents`, icon: FileText, mobileIcon: FileText, description: 'المستندات والسجلات والأرشيف', minRole: null },
+    {
+      title: 'لوحة التحكم',
+      desktopTitle: 'لوحة التحكم',
+      href: `/buildings/${buildingId}`,
+      icon: LayoutDashboard,
+      mobileIcon: LayoutDashboard,
+      description: 'نظرة عامة على عمليات المبنى',
+      minRole: null,
+    },
+    {
+      title: 'القرارات',
+      desktopTitle: 'القرارات',
+      href: `/buildings/${buildingId}/decisions`,
+      icon: Vote,
+      mobileIcon: Vote,
+      description: 'القرارات المفتوحة والمواعيد والنتائج',
+      minRole: 'owner' as const,
+    },
+    {
+      title: 'الصيانة',
+      desktopTitle: 'الصيانة',
+      href: `/buildings/${buildingId}/maintenance`,
+      icon: Wrench,
+      mobileIcon: ClipboardList,
+      description: 'الطلبات والتقدم وقائمة الاستجابة',
+      minRole: null,
+    },
+    {
+      title: 'الجمعية',
+      desktopTitle: 'الجمعية',
+      href: `/buildings/${buildingId}/association`,
+      icon: Users,
+      mobileIcon: Users,
+      description: 'أدوار الجمعية والملاك والرسوم',
+      minRole: 'owner' as const,
+    },
+    {
+      title: 'المبنى والوحدات',
+      desktopTitle: 'الوحدات',
+      href: `/buildings/${buildingId}/units`,
+      icon: Building2,
+      mobileIcon: Building2,
+      description: 'الوحدات والإشغال وسجلات المبنى',
+      minRole: null,
+    },
+    {
+      title: 'المستندات',
+      desktopTitle: 'المستندات',
+      href: `/buildings/${buildingId}/documents`,
+      icon: FileText,
+      mobileIcon: FileText,
+      description: 'المستندات والسجلات والأرشيف',
+      minRole: null,
+    },
   ]
 }
 
@@ -58,15 +106,12 @@ export function Topbar({ buildingId }: { buildingId: string }) {
   const buildingData = getBuildingData(buildingId)
   const appData = useAppData()
 
-  // Compute badge counts
   const badgeCounts: Record<string, number> = {}
 
-  // القرارات: open decisions user hasn't voted on
   if (canVote(role)) {
     badgeCounts[`/buildings/${buildingId}/decisions`] = appData.getDecisionsAwaitingVote(userId).length
   }
 
-  // الصيانة: role-based count
   if (canManageMaintenance(role)) {
     badgeCounts[`/buildings/${buildingId}/maintenance`] = appData.maintenanceRequests.filter(
       (r) => r.status === 'new' || (r.priority === 'urgent' && r.status !== 'completed' && r.status !== 'cancelled')
@@ -77,7 +122,6 @@ export function Topbar({ buildingId }: { buildingId: string }) {
     ).length
   }
 
-  // المستندات: documents uploaded in last 7 days
   const sevenDaysAgo = renderedAt - 7 * 24 * 60 * 60 * 1000
   badgeCounts[`/buildings/${buildingId}/documents`] = appData.documents.filter(
     (d) => new Date(d.createdAt).getTime() > sevenDaysAgo
@@ -97,8 +141,8 @@ export function Topbar({ buildingId }: { buildingId: string }) {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-stone-200/70 bg-[rgba(247,244,238,0.88)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
-          <div className="flex min-w-0 flex-1 items-center gap-3 lg:max-w-[28rem] xl:max-w-[32rem]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6 lg:gap-6">
+          <div className="flex min-w-0 items-center gap-3 lg:w-[18.5rem] lg:flex-none xl:w-[21rem]">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-sm font-bold text-white shadow-[0_12px_30px_rgba(28,25,23,0.18)]">
               م
             </div>
@@ -115,49 +159,48 @@ export function Topbar({ buildingId }: { buildingId: string }) {
             </div>
           </div>
 
-          <div className="hidden min-w-0 flex-1 items-center justify-center gap-2 lg:flex">
-            {visibleNav.map((item) => {
-              const isActive =
-                item.href === `/buildings/${buildingId}`
-                  ? pathname === item.href
-                  : pathname.startsWith(item.href)
+          <div className="hidden min-w-0 flex-1 lg:block">
+            <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <nav className="flex min-w-max items-center justify-center gap-1 px-1" aria-label="تنقل المبنى">
+                {visibleNav.map((item) => {
+                  const isActive =
+                    item.href === `/buildings/${buildingId}`
+                      ? pathname === item.href
+                      : pathname.startsWith(item.href)
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'group min-w-0 rounded-2xl border px-4 py-2.5 transition-all xl:py-3',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
-                    isActive
-                      ? 'border-teal-100 bg-white/95 text-stone-950 shadow-[0_14px_30px_rgba(15,118,110,0.06)]'
-                      : 'border-transparent text-stone-600 hover:border-stone-200/90 hover:bg-white/75 hover:text-stone-900'
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="relative">
-                      <item.icon
-                        className={cn(
-                          'h-4 w-4',
-                          isActive ? 'text-teal-700' : 'text-stone-500 group-hover:text-stone-700'
-                        )}
-                      />
-                      <NavBadge count={badgeCounts[item.href] || 0} tone="header" />
-                    </span>
-                    <span className="truncate text-sm font-medium">{item.title}</span>
-                  </div>
-                  <p className="mt-1 hidden text-xs text-stone-500 xl:block">{item.description}</p>
-                </Link>
-              )
-            })}
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={cn(
+                        'relative flex h-11 shrink-0 items-center rounded-xl px-4 text-sm font-medium whitespace-nowrap transition-colors',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+                        isActive
+                          ? 'bg-white/82 text-stone-950'
+                          : 'text-stone-600 hover:bg-white/55 hover:text-stone-900'
+                      )}
+                    >
+                      <span className="relative pe-4">
+                        {item.desktopTitle}
+                        <NavBadge count={badgeCounts[item.href] || 0} tone="desktop" />
+                      </span>
+                      {isActive && (
+                        <span className="pointer-events-none absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-teal-600" />
+                      )}
+                    </Link>
+                  )
+                })}
+              </nav>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 lg:flex-none">
             <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800 transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
+              <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800 transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 lg:border-stone-200 lg:bg-white/75 lg:text-stone-700 lg:hover:bg-white">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 {getRoleLabel(role)}
-                <ChevronDown className="h-3 w-3 text-emerald-700" />
+                <ChevronDown className="h-3 w-3 text-emerald-700 lg:text-stone-500" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-64 p-2">
                 <DropdownMenuGroup>
@@ -170,7 +213,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                       <DropdownMenuItem
                         key={u.userId}
                         className={cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-md',
+                          'flex items-center gap-3 rounded-md px-3 py-2.5',
                           isActive && 'bg-teal-50'
                         )}
                         onClick={() => switchUser(u.userId)}
@@ -281,16 +324,19 @@ export function Topbar({ buildingId }: { buildingId: string }) {
   )
 }
 
-function NavBadge({ count, tone = 'header' }: { count: number; tone?: 'header' | 'mobile' }) {
+function NavBadge({ count, tone = 'header' }: { count: number; tone?: 'desktop' | 'header' | 'mobile' }) {
   if (count === 0) return null
   const label = count > 99 ? '99+' : count
+
   return (
     <span
       className={cn(
         'pointer-events-none absolute flex items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold leading-none text-white shadow-sm',
         tone === 'mobile'
           ? '-end-2 -top-1 h-4 min-w-4 ring-2 ring-white/95'
-          : '-end-2 -top-2 h-[17px] min-w-[17px] ring-2 ring-[rgba(247,244,238,0.92)]'
+          : tone === 'desktop'
+            ? '-end-2.5 -top-2 h-4 min-w-4 ring-2 ring-[rgba(247,244,238,0.92)]'
+            : '-end-2 -top-2 h-[17px] min-w-[17px] ring-2 ring-[rgba(247,244,238,0.92)]'
       )}
     >
       {label}
