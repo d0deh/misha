@@ -43,6 +43,37 @@ Without `items`, the user sees "in_progress" instead of "قيد التنفيذ" 
 - Vote buttons are all neutral/stone-colored when unvoted. Only fill with color (green/red/gray) AFTER the user votes
 - "لم تصوّت بعد" uses amber (informational), never red
 
+## Voting System (IMPORTANT)
+
+Voting is **area-weighted per Saudi Article 18.6**, NOT head-count. The logic lives in `src/lib/vote-weights.ts`:
+
+- Each owner's vote weight = their total unit area / total building subdivided area
+- If any single owner's share exceeds 50%, it's capped at 50%
+- Approval requires ≥75% of total voted area weight
+- Progress bars show % of area represented by votes cast
+- `computeVoterWeights()` — computes all weights for a building
+- `getVotedAreaWeight()` — sums area weight of votes on a decision
+- `computeWeightedResult()` — determines approved/rejected with Arabic result text
+- `AppDataContext` exposes `voterWeights: VoterWeight[]` for all pages
+
+## Component Structure
+
+Large pages are split into extracted components in the same directory:
+
+- `decisions/page.tsx` — orchestrator (tabs, layout)
+  - `decisions/decision-card.tsx` — single decision card with inline vote buttons
+  - `decisions/decision-detail-sheet.tsx` — side sheet with vote breakdown + actions
+  - `decisions/create-decision-dialog.tsx` — create form dialog
+  - `decisions/_constants.ts` — shared style maps
+  - `decisions/_whatsapp.ts` — WhatsApp share URL helper
+
+- `maintenance/page.tsx` — orchestrator (filters, table)
+  - `maintenance/request-detail-sheet.tsx` — side sheet with workflow + comments
+  - `maintenance/create-request-dialog.tsx` — create form dialog
+  - `maintenance/_constants.ts` — shared style maps
+
+Extracted components use `useAppData()` and `useUser()` internally — no prop-drilling of context data.
+
 ## Data & Labels
 
 Mock data uses English enum keys internally. Arabic labels are provided by helper functions in `src/lib/mock-data.ts`:
@@ -55,3 +86,13 @@ Mock data uses English enum keys internally. Arabic labels are provided by helpe
 - `getVoteOptionLabel()` — approve, reject, abstain
 
 Always use these helpers for display. Never show raw enum values to the user.
+
+## Fee Data
+
+Fees are a first-class entity (`Fee` type in `types.ts`). Fee records live in `mock-data.ts` per building and are exposed via `AppDataContext`. The association page reads from `fees` in context — do NOT compute fees on-the-fly from unit areas.
+
+## Deployment
+
+- GitHub: https://github.com/d0deh/misha
+- Vercel: https://misha-self.vercel.app
+- Auto-deploys on push to `master`

@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# مِشاع (Misha)
+
+Saudi HOA management platform for owner associations. Day-to-day operational dashboard — not a government replacement.
+
+**Live demo:** https://misha-self.vercel.app
+
+## What is this?
+
+Misha helps run shared residential buildings in Saudi Arabia:
+- **Voting** — Area-weighted per Saudi Article 18.6 (75% approval threshold, 50% cap)
+- **Maintenance** — Request lifecycle with vendor assignment, cost tracking, comments
+- **Association** — Board roles, owner registry, fee tracking with collection rates
+- **Documents** — Upload with visibility controls (everyone / board only / owners only)
+- **Dashboard** — Hijri date, personalized greeting, notification badges, activity timeline
+
+## Roles
+
+| Role | Arabic | Can vote | Can manage |
+|------|--------|----------|------------|
+| Chairman | رئيس الجمعية | Yes | Everything |
+| Vice Chairman | نائب الرئيس | Yes | Everything |
+| Board Member | عضو مجلس إدارة | Yes | View only |
+| Manager | مدير العقار | No | Maintenance + docs |
+| Owner | مالك | Yes | Own units |
+| Resident | مقيم | No | Own unit maintenance |
+
+Use the role switcher in the topbar to demo different perspectives.
+
+## Tech Stack
+
+- Next.js 16 + React 19 + TypeScript
+- Tailwind CSS 4 + shadcn/ui + Base UI
+- Arabic RTL with Readex Pro font
+- Client-side only (mock data, no backend)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/
+    buildings/          # Building selector
+    buildings/[id]/     # Per-building pages
+      page.tsx          # Dashboard
+      decisions/        # Voting (split into components)
+      maintenance/      # Requests (split into components)
+      association/      # Members + fees
+      units/            # Building units
+      documents/        # Document library
+  components/
+    layout/topbar.tsx   # Navigation + badges
+    ui/                 # shadcn/ui components
+  lib/
+    types.ts            # All TypeScript interfaces
+    mock-data.ts        # 3 buildings with mock data
+    app-data-context.tsx # Global state + mutations
+    user-context.tsx    # User roles + permissions
+    vote-weights.ts     # Area-weighted voting logic
+```
 
-## Learn More
+## Status
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This is a **prototype/demo** — all data is client-side and resets on refresh. No authentication, no backend, no real file uploads.
