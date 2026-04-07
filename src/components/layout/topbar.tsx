@@ -27,7 +27,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useUser, canVote, canManageMaintenance } from '@/lib/user-context'
 import { useAppData } from '@/lib/app-data-context'
-import { getOwnerById, getRoleLabel, getBuildingData, getUserUnitIds } from '@/lib/mock-data'
+import { getOwnerById, getRoleLabel, getBuildingData } from '@/lib/mock-data'
 import type { AssociationRoleType } from '@/lib/types'
 
 const nonResidentRoles: AssociationRoleType[] = [
@@ -51,6 +51,7 @@ function getNavItems(buildingId: string) {
 
 export function Topbar({ buildingId }: { buildingId: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [renderedAt] = useState(() => Date.now())
   const pathname = usePathname()
   const { userId, role, switchUser, switchableUsers } = useUser()
   const navItems = getNavItems(buildingId)
@@ -77,7 +78,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
   }
 
   // المستندات: documents uploaded in last 7 days
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const sevenDaysAgo = renderedAt - 7 * 24 * 60 * 60 * 1000
   badgeCounts[`/buildings/${buildingId}/documents`] = appData.documents.filter(
     (d) => new Date(d.createdAt).getTime() > sevenDaysAgo
   ).length
@@ -97,15 +98,15 @@ export function Topbar({ buildingId }: { buildingId: string }) {
     <>
       <header className="sticky top-0 z-40 border-b border-stone-200/70 bg-[rgba(247,244,238,0.88)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
-          <div className="flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3 lg:max-w-[28rem] xl:max-w-[32rem]">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-sm font-bold text-white shadow-[0_12px_30px_rgba(28,25,23,0.18)]">
               م
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-stone-500">
                 مركز قيادة مِشاع
               </p>
-              <h1 className="truncate text-lg font-semibold text-stone-950 md:text-xl">
+              <h1 className="truncate text-lg font-semibold text-stone-950 md:text-xl" title={buildingData?.building.name}>
                 {buildingData?.building.name || 'مِشاع'}
               </h1>
               <p className="truncate text-sm text-stone-600">
@@ -114,7 +115,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
             </div>
           </div>
 
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden min-w-0 flex-1 items-center justify-center gap-2 lg:flex">
             {visibleNav.map((item) => {
               const isActive =
                 item.href === `/buildings/${buildingId}`
@@ -126,11 +127,11 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'group rounded-2xl border px-4 py-3 transition-all',
+                    'group min-w-0 rounded-2xl border px-4 py-2.5 transition-all xl:py-3',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                     isActive
-                      ? 'border-teal-200 bg-white text-stone-950 shadow-[0_14px_30px_rgba(15,118,110,0.08)]'
-                      : 'border-transparent text-stone-600 hover:border-stone-200 hover:bg-white/80 hover:text-stone-900'
+                      ? 'border-teal-100 bg-white/95 text-stone-950 shadow-[0_14px_30px_rgba(15,118,110,0.06)]'
+                      : 'border-transparent text-stone-600 hover:border-stone-200/90 hover:bg-white/75 hover:text-stone-900'
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -141,11 +142,11 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                           isActive ? 'text-teal-700' : 'text-stone-500 group-hover:text-stone-700'
                         )}
                       />
-                      <NavBadge count={badgeCounts[item.href] || 0} />
+                      <NavBadge count={badgeCounts[item.href] || 0} tone="header" />
                     </span>
-                    <span className="text-sm font-medium">{item.title}</span>
+                    <span className="truncate text-sm font-medium">{item.title}</span>
                   </div>
-                  <p className="mt-1 text-xs text-stone-500">{item.description}</p>
+                  <p className="mt-1 hidden text-xs text-stone-500 xl:block">{item.description}</p>
                 </Link>
               )
             })}
@@ -234,7 +235,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                   <div className="flex items-center gap-2">
                     <span className="relative">
                       <item.icon className={cn('h-4 w-4', isActive ? 'text-teal-700' : 'text-stone-500')} />
-                      <NavBadge count={badgeCounts[item.href] || 0} />
+                      <NavBadge count={badgeCounts[item.href] || 0} tone="header" />
                     </span>
                     <span className="text-sm font-medium">{item.title}</span>
                   </div>
@@ -268,7 +269,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
               >
                 <span className="relative">
                   <MobileIcon className="h-4 w-4" />
-                  <NavBadge count={badgeCounts[item.href] || 0} />
+                  <NavBadge count={badgeCounts[item.href] || 0} tone="mobile" />
                 </span>
                 <span className="truncate text-xs font-medium">{item.title}</span>
               </Link>
@@ -280,11 +281,19 @@ export function Topbar({ buildingId }: { buildingId: string }) {
   )
 }
 
-function NavBadge({ count }: { count: number }) {
+function NavBadge({ count, tone = 'header' }: { count: number; tone?: 'header' | 'mobile' }) {
   if (count === 0) return null
+  const label = count > 99 ? '99+' : count
   return (
-    <span className="absolute -top-1 -start-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
-      {count}
+    <span
+      className={cn(
+        'pointer-events-none absolute flex items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold leading-none text-white shadow-sm',
+        tone === 'mobile'
+          ? '-end-2 -top-1 h-4 min-w-4 ring-2 ring-white/95'
+          : '-end-2 -top-2 h-[17px] min-w-[17px] ring-2 ring-[rgba(247,244,238,0.92)]'
+      )}
+    >
+      {label}
     </span>
   )
 }

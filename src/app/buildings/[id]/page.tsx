@@ -176,14 +176,14 @@ export default function DashboardPage() {
       </div>
 
       {attentionItems.length > 0 && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-amber-800">
-            <CircleAlert className="h-4 w-4 shrink-0" />
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/75 px-3.5 py-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/90 bg-white/85 px-2.5 py-1 text-sm font-semibold text-amber-900 shadow-[0_1px_0_rgba(245,158,11,0.14)]">
+            <CircleAlert className="h-4 w-4 shrink-0 text-amber-700" />
             <span>يحتاج انتباهك</span>
           </div>
-          <ul className="mt-2 space-y-1 ps-6">
+          <ul className="mt-2 flex flex-wrap gap-2 ps-0">
             {attentionItems.map((item) => (
-              <li key={item} className="text-sm text-amber-700 list-disc">{item}</li>
+              <li key={item} className="list-none rounded-full bg-amber-100/70 px-2.5 py-1 text-sm text-amber-800">{item}</li>
             ))}
           </ul>
         </div>
@@ -194,12 +194,20 @@ export default function DashboardPage() {
           <Link
             key={card.title}
             href={card.href}
-            className="rounded-lg border border-stone-200 bg-white p-3 transition-colors hover:bg-stone-50"
+            className="group rounded-2xl border border-stone-200/90 bg-white/92 px-4 py-3.5 transition-colors hover:border-stone-300 hover:bg-white"
           >
-            <card.icon className="h-5 w-5 text-stone-400" />
-            <p className="mt-3 text-2xl font-semibold tabular-nums text-stone-950">{card.value}</p>
-            <p className="mt-1 text-sm font-medium text-stone-700">{card.title}</p>
-            <p className="mt-1 text-xs text-stone-500">{card.hint}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-stone-500">{card.title}</p>
+                <p className="mt-1.5 text-[1.7rem] font-semibold tabular-nums leading-none text-stone-950">
+                  {card.value}
+                </p>
+              </div>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-stone-100 text-stone-500 transition-colors group-hover:bg-stone-200/80 group-hover:text-stone-700">
+                <card.icon className="h-[18px] w-[18px]" />
+              </span>
+            </div>
+            <p className="mt-2 min-h-10 overflow-hidden text-xs leading-5 text-stone-600 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">{card.hint}</p>
           </Link>
         ))}
       </div>
@@ -485,10 +493,10 @@ function SignalTile({
   note: string
 }) {
   return (
-    <div className="rounded-[1.35rem] border border-stone-200 bg-stone-50/80 px-3 py-3">
-      <p className="text-xs text-stone-500">{label}</p>
-      <p className="mt-3 text-2xl font-semibold tabular-nums text-stone-950">{value}</p>
-      <p className="mt-2 text-sm text-stone-600">{note}</p>
+    <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50/75 px-3.5 py-3">
+      <p className="text-xs font-medium text-stone-500">{label}</p>
+      <p className="mt-1.5 text-[1.7rem] font-semibold tabular-nums leading-none text-stone-950">{value}</p>
+      <p className="mt-1.5 text-sm text-stone-600">{note}</p>
     </div>
   )
 }
