@@ -1,13 +1,13 @@
 export const priorityStyles: Record<string, { dot: string; badge: string }> = {
-  urgent: { dot: 'bg-red-500', badge: 'bg-red-50 text-red-700 border-red-200' },
-  high: { dot: 'bg-amber-500', badge: 'bg-amber-50 text-amber-700 border-amber-200' },
-  medium: { dot: 'bg-stone-500', badge: 'bg-stone-100 text-stone-600 border-stone-200' },
-  low: { dot: 'bg-stone-400', badge: 'bg-stone-50 text-stone-600 border-stone-200' },
+  urgent: { dot: 'bg-destructive', badge: 'border-destructive/20 bg-destructive/10 text-destructive' },
+  high: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
+  medium: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
+  low: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted/70 text-muted-foreground' },
 }
 
 export const statusStyles: Record<string, { dot: string; badge: string }> = {
-  new: { dot: 'bg-amber-500', badge: 'bg-amber-50 text-amber-700 border-amber-200' },
-  in_progress: { dot: 'bg-teal-500', badge: 'bg-teal-50 text-teal-700 border-teal-200' },
-  completed: { dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  cancelled: { dot: 'bg-stone-400', badge: 'bg-stone-100 text-stone-600 border-stone-200' },
+  new: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
+  in_progress: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
+  completed: { dot: 'bg-success', badge: 'border-success/20 bg-success/10 text-success' },
+  cancelled: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
 }

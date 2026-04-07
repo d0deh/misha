@@ -1,9 +1,17 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Plus, Search, Wrench } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import {
+  PageHeader,
+  PageHeaderActions,
+  PageHeaderBody,
+  PageHeaderDescription,
+  PageHeaderEyebrow,
+  PageHeaderTitle,
+} from '@/components/ui/page-header'
 import {
   Select,
   SelectContent,
@@ -21,9 +29,9 @@ import {
 } from '@/components/ui/table'
 import {
   getOwnerById,
-  getStatusLabel,
-  getPriorityLabel,
   getOwnerUnits,
+  getPriorityLabel,
+  getStatusLabel,
 } from '@/lib/mock-data'
 import { useAppData } from '@/lib/app-data-context'
 import { useUser, canManageMaintenance } from '@/lib/user-context'
@@ -53,71 +61,79 @@ export default function MaintenancePage() {
 
   const userUnitIds = useMemo(() => {
     const userUnits = getOwnerUnits(userId, ownershipLinks, units)
-    return new Set(userUnits.map((u) => u.id))
-  }, [userId, ownershipLinks, units])
+    return new Set(userUnits.map((unit) => unit.id))
+  }, [ownershipLinks, units, userId])
 
   const activeCount = maintenanceRequests.filter(
-    (r) => r.status === 'new' || r.status === 'in_progress'
+    (request) => request.status === 'new' || request.status === 'in_progress'
   ).length
 
   const filteredRequests = useMemo(() => {
     let base: MaintenanceRequest[]
+
     if (viewMode === 'mine') {
-      base = maintenanceRequests.filter((req) => req.requesterId === userId)
+      base = maintenanceRequests.filter((request) => request.requesterId === userId)
     } else if (showManagement) {
       base = maintenanceRequests
     } else {
       base = maintenanceRequests.filter(
-        (req) =>
-          req.type === 'general' ||
-          req.requesterId === userId ||
-          (req.unitId !== undefined && userUnitIds.has(req.unitId))
+        (request) =>
+          request.type === 'general' ||
+          request.requesterId === userId ||
+          (request.unitId !== undefined && userUnitIds.has(request.unitId))
       )
     }
 
-    return base.filter((req) => {
-      const matchesSearch = search === '' || req.title.includes(search)
+    return base.filter((request) => {
+      const matchesSearch = search === '' || request.title.includes(search)
       const matchesStatus =
-        !statusFilter || statusFilter === 'all' || req.status === statusFilter
+        !statusFilter || statusFilter === 'all' || request.status === statusFilter
       const matchesPriority =
-        !priorityFilter || priorityFilter === 'all' || req.priority === priorityFilter
+        !priorityFilter || priorityFilter === 'all' || request.priority === priorityFilter
       return matchesSearch && matchesStatus && matchesPriority
     })
-  }, [search, statusFilter, priorityFilter, viewMode, userId, maintenanceRequests, showManagement, userUnitIds])
+  }, [
+    maintenanceRequests,
+    priorityFilter,
+    search,
+    showManagement,
+    statusFilter,
+    userId,
+    userUnitIds,
+    viewMode,
+  ])
 
-  function handleRowClick(req: MaintenanceRequest) {
-    setSelectedRequestId(req.id)
+  function handleRowClick(request: MaintenanceRequest) {
+    setSelectedRequestId(request.id)
     setSheetOpen(true)
   }
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <Button
-          size="sm"
-          onClick={() => setNewDialogOpen(true)}
-          className="bg-teal-700 text-white hover:bg-teal-800"
-        >
-          <Plus className="h-4 w-4" />
-          طلب صيانة جديد
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">الصيانة</h1>
-          <p className="text-sm text-stone-600 mt-0.5">
+      <PageHeader>
+        <PageHeaderBody>
+          <PageHeaderEyebrow>مركز الصيانة</PageHeaderEyebrow>
+          <PageHeaderTitle>الصيانة</PageHeaderTitle>
+          <PageHeaderDescription>
             {activeCount} طلب نشط من أصل {maintenanceRequests.length}
-          </p>
-        </div>
-      </div>
+          </PageHeaderDescription>
+        </PageHeaderBody>
+        <PageHeaderActions>
+          <Button size="sm" onClick={() => setNewDialogOpen(true)}>
+            <Plus className="h-4 w-4" data-icon="inline-start" />
+            طلب صيانة جديد
+          </Button>
+        </PageHeaderActions>
+      </PageHeader>
 
-      {/* View mode tabs */}
-      <div className="flex items-center gap-1 rounded-lg bg-stone-100 p-0.5 w-fit">
+      <div className="flex w-fit items-center gap-1 rounded-xl border border-border/80 bg-muted/55 p-1">
         <button
           onClick={() => setViewMode('mine')}
           className={cn(
-            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'mine'
-              ? 'bg-white text-stone-900'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
           )}
         >
           طلباتي
@@ -125,141 +141,123 @@ export default function MaintenancePage() {
         <button
           onClick={() => setViewMode('all')}
           className={cn(
-            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'all'
-              ? 'bg-white text-stone-900'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
           )}
         >
           كل الطلبات
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-500 pointer-events-none" />
-          <Input
-            placeholder="بحث بعنوان الطلب..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="ps-9 border-stone-200 focus-visible:ring-teal-500"
-          />
+      <div className="page-shell p-4 md:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="بحث بعنوان الطلب..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="ps-9"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? '')}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="كل الحالات" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الحالات</SelectItem>
+              <SelectItem value="new">جديد</SelectItem>
+              <SelectItem value="in_progress">قيد التنفيذ</SelectItem>
+              <SelectItem value="completed">مكتمل</SelectItem>
+              <SelectItem value="cancelled">ملغي</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value ?? '')}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="كل الأولويات" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الأولويات</SelectItem>
+              <SelectItem value="urgent">عاجلة</SelectItem>
+              <SelectItem value="high">عالية</SelectItem>
+              <SelectItem value="medium">متوسطة</SelectItem>
+              <SelectItem value="low">منخفضة</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? '')} items={{ all: 'الكل', new: 'جديد', in_progress: 'قيد التنفيذ', completed: 'مكتمل', cancelled: 'ملغي' }}>
-          <SelectTrigger className="w-full sm:w-40 border-stone-200 focus:ring-teal-500">
-            <SelectValue placeholder="الكل" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">الكل</SelectItem>
-            <SelectItem value="new">جديد</SelectItem>
-            <SelectItem value="in_progress">قيد التنفيذ</SelectItem>
-            <SelectItem value="completed">مكتمل</SelectItem>
-            <SelectItem value="cancelled">ملغي</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v ?? '')} items={{ all: 'الكل', urgent: 'عاجلة', high: 'عالية', medium: 'متوسطة', low: 'منخفضة' }}>
-          <SelectTrigger className="w-full sm:w-40 border-stone-200 focus:ring-teal-500">
-            <SelectValue placeholder="الكل" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">الكل</SelectItem>
-            <SelectItem value="urgent">عاجلة</SelectItem>
-            <SelectItem value="high">عالية</SelectItem>
-            <SelectItem value="medium">متوسطة</SelectItem>
-            <SelectItem value="low">منخفضة</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Table */}
-      <div className="rounded-lg border border-stone-200 overflow-x-auto">
+      <div className="data-table-shell">
         <Table>
           <TableHeader>
-            <TableRow className="bg-stone-100 hover:bg-stone-100">
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10">
-                العنوان
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10 hidden md:table-cell">
-                النوع
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10">
-                الأولوية
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10">
-                الحالة
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10 hidden md:table-cell">
-                مقدم الطلب
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10 hidden md:table-cell">
-                التاريخ
-              </TableHead>
+            <TableRow className="bg-muted/45 hover:bg-muted/45">
+              <TableHead>العنوان</TableHead>
+              <TableHead className="hidden md:table-cell">النوع</TableHead>
+              <TableHead>الأولوية</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead className="hidden md:table-cell">مقدم الطلب</TableHead>
+              <TableHead className="hidden md:table-cell">التاريخ</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredRequests.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center align-middle">
-                  <Wrench className="h-12 w-12 text-stone-300 mx-auto mb-3" />
-                  <p className="text-base font-medium text-stone-700">
-                    لا توجد طلبات صيانة مطابقة
-                  </p>
-                  <p className="text-sm text-stone-600 mt-1">
+                  <Wrench className="mx-auto mb-3 h-12 w-12 text-muted-foreground/45" />
+                  <p className="text-base font-medium text-foreground">لا توجد طلبات صيانة مطابقة</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
                     حاول تغيير معايير البحث أو الفلاتر
                   </p>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredRequests.map((req) => {
-                const requester = getOwnerById(req.requesterId, appData.owners)
-                const pStyle = priorityStyles[req.priority]
-                const sStyle = statusStyles[req.status]
+              filteredRequests.map((request) => {
+                const requester = getOwnerById(request.requesterId, appData.owners)
+                const priorityStyle = priorityStyles[request.priority]
+                const statusStyle = statusStyles[request.status]
+
                 return (
                   <TableRow
-                    key={req.id}
+                    key={request.id}
                     role="button"
                     tabIndex={0}
-                    onClick={() => handleRowClick(req)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRowClick(req) } }}
-                    className="cursor-pointer hover:bg-teal-50/30 h-12 border-b border-stone-100"
+                    onClick={() => handleRowClick(request)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        handleRowClick(request)
+                      }
+                    }}
+                    className="h-12 cursor-pointer hover:bg-primary/6"
                   >
-                    <TableCell className="text-sm font-medium text-stone-900 max-w-48 truncate">
-                      {req.title}
-                      {req.requesterId === userId && (
-                        <span className="text-xs text-teal-700 ms-1">·طلبك</span>
+                    <TableCell className="max-w-48 truncate text-sm font-medium text-foreground">
+                      {request.title}
+                      {request.requesterId === userId && (
+                        <span className="ms-1 text-xs text-primary">· طلبك</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-stone-600 hidden md:table-cell">
-                      {req.type === 'general' ? 'عام' : 'خاص'}
+                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                      {request.type === 'general' ? 'عام' : 'خاص'}
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
-                          pStyle.badge
-                        )}
-                      >
-                        <span className={cn('h-1.5 w-1.5 rounded-full', pStyle.dot)} />
-                        {getPriorityLabel(req.priority)}
+                      <span className={cn('status-pill', priorityStyle.badge)}>
+                        <span className={cn('h-1.5 w-1.5 rounded-full', priorityStyle.dot)} />
+                        {getPriorityLabel(request.priority)}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
-                          sStyle.badge
-                        )}
-                      >
-                        <span className={cn('h-1.5 w-1.5 rounded-full', sStyle.dot)} />
-                        {getStatusLabel(req.status)}
+                      <span className={cn('status-pill', statusStyle.badge)}>
+                        <span className={cn('h-1.5 w-1.5 rounded-full', statusStyle.dot)} />
+                        {getStatusLabel(request.status)}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm text-stone-700 hidden md:table-cell">
+                    <TableCell className="hidden text-sm text-foreground/85 md:table-cell">
                       {requester?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
                     </TableCell>
-                    <TableCell className="text-sm text-stone-600 tabular-nums hidden md:table-cell">
-                      {new Date(req.createdAt).toLocaleDateString('ar-SA', {
+                    <TableCell className="hidden text-sm tabular-nums text-muted-foreground md:table-cell">
+                      {new Date(request.createdAt).toLocaleDateString('ar-SA', {
                         day: 'numeric',
                         month: 'short',
                       })}
@@ -272,21 +270,17 @@ export default function MaintenancePage() {
         </Table>
       </div>
 
-      <p className="text-sm text-stone-600">
+      <p className="text-sm text-muted-foreground">
         عرض {filteredRequests.length} من {maintenanceRequests.length} طلب
       </p>
 
-      {/* Extracted components */}
       <RequestDetailSheet
         requestId={selectedRequestId}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
       />
 
-      <CreateRequestDialog
-        open={newDialogOpen}
-        onOpenChange={setNewDialogOpen}
-      />
+      <CreateRequestDialog open={newDialogOpen} onOpenChange={setNewDialogOpen} />
     </div>
   )
 }

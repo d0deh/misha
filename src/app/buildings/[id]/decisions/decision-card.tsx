@@ -2,8 +2,8 @@
 
 import { Share2 } from 'lucide-react'
 import {
-  getOwnerById,
   getCategoryLabel,
+  getOwnerById,
   getStatusLabel,
   getVoteOptionLabel,
 } from '@/lib/mock-data'
@@ -13,7 +13,12 @@ import { useToast } from '@/lib/use-toast'
 import { useUser, canVote } from '@/lib/user-context'
 import type { Decision } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { categoryBadge, categoryBorder, statusBadgeStyles, voteButtonOptions } from './_constants'
+import {
+  categoryBadge,
+  categoryBorder,
+  statusBadgeStyles,
+  voteButtonOptions,
+} from './_constants'
 import { getWhatsAppUrl } from './_whatsapp'
 
 interface DecisionCardProps {
@@ -40,40 +45,43 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
   const votedAreaWeight = getVotedAreaWeight(decisionVotes, voterWeights)
   const voteProgress = Math.round(votedAreaWeight)
   const isOpen = decision.status === 'open'
-  const sBadge = statusBadgeStyles[decision.status] || statusBadgeStyles.closed
+  const statusBadge = statusBadgeStyles[decision.status] || statusBadgeStyles.closed
   const myVote = getUserVoteForDecision(userId, decision.id)
 
   function handleVote(option: 'approve' | 'reject' | 'abstain') {
     const existingVote = getUserVoteForDecision(userId, decision.id)
+
     if (existingVote) {
       if (existingVote.option === option) return
       appData.changeVote(decision.id, userId, option)
     } else {
       appData.addVote(decision.id, userId, option, userName)
     }
-    toast('تم تسجيل تصويتك ✓')
+
+    toast('تم تسجيل تصويتك')
   }
 
   function renderCompactVoteButtons() {
     if (!isOpen || !userCanVote) return null
 
     return (
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100">
-        {voteButtonOptions.map((opt) => {
-          const isActive = myVote?.option === opt.key
+      <div className="mt-3 flex items-center gap-2 border-t border-border/70 pt-3">
+        {voteButtonOptions.map((option) => {
+          const isActive = myVote?.option === option.key
+
           return (
             <button
-              key={opt.key}
-              onClick={(e) => {
-                e.stopPropagation()
-                handleVote(opt.key)
+              key={option.key}
+              onClick={(event) => {
+                event.stopPropagation()
+                handleVote(option.key)
               }}
               className={cn(
-                'flex-1 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors',
-                isActive ? opt.activeClass : opt.inactiveClass
+                'flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors',
+                isActive ? option.activeClass : option.inactiveClass
               )}
             >
-              {opt.label}
+              {option.label}
               {isActive && ' ✓'}
             </button>
           )
@@ -86,18 +94,15 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
     <button
       onClick={onClick}
       className={cn(
-        'w-full text-start rounded-lg border border-stone-200 bg-white p-4 border-s-[3px] transition-colors hover:bg-teal-50/30',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
-        categoryBorder[decision.category] || 'border-s-stone-300'
+        'page-shell w-full border-s-[3px] p-4 text-start transition-colors hover:bg-primary/4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+        categoryBorder[decision.category] || 'border-s-border'
       )}
     >
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <p className="text-sm font-medium text-stone-900 leading-snug">
-          {decision.title}
-        </p>
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <p className="text-sm font-medium leading-snug text-foreground">{decision.title}</p>
         <span
           className={cn(
-            'inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium border shrink-0',
+            'status-pill shrink-0',
             categoryBadge[decision.category] || categoryBadge.general
           )}
         >
@@ -105,57 +110,51 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
         </span>
       </div>
 
-      <p className="text-sm text-stone-600 line-clamp-2 mb-2">
-        {decision.description}
-      </p>
+      <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">{decision.description}</p>
 
-      <p className="text-sm text-stone-600 mb-3">
+      <p className="mb-3 text-sm text-muted-foreground">
         أنشأه {creator?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'}
       </p>
 
       {isOpen ? (
         <>
           <div className="mb-2">
-            <div className="flex items-center justify-between text-sm text-stone-600 mb-1">
-              <span>صوّت ملاك يمثلون {Math.round(votedAreaWeight)}٪ من المساحة ({decisionVotes.length} ملاك)</span>
+            <div className="mb-1 flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                صوّت ملاك يمثلون {Math.round(votedAreaWeight)}٪ من المساحة ({decisionVotes.length}{' '}
+                ملاك)
+              </span>
               <span className="tabular-nums">{voteProgress}٪</span>
             </div>
-            <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+            <div className="h-1.5 overflow-hidden rounded-full bg-muted/80">
               <div
-                className="h-full rounded-full bg-teal-500 transition-all ms-auto"
+                className="ms-auto h-full rounded-full bg-primary transition-all"
                 style={{ width: `${voteProgress}%` }}
               />
             </div>
           </div>
-          <p className={cn('text-xs', isUrgent ? 'text-red-600 font-medium' : 'text-stone-600')}>
+          <p className={cn('text-xs', isUrgent ? 'font-medium text-warning' : 'text-muted-foreground')}>
             {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
           </p>
         </>
       ) : (
         <div>
           <div className="flex items-center justify-between gap-2">
-            {decision.result && (
-              <p className="text-xs text-stone-600 truncate">{decision.result}</p>
-            )}
-            <span
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium shrink-0',
-                sBadge.badge
-              )}
-            >
-              <span className={cn('h-1.5 w-1.5 rounded-full', sBadge.dot)} />
+            {decision.result && <p className="truncate text-xs text-muted-foreground">{decision.result}</p>}
+            <span className={cn('status-pill shrink-0', statusBadge.badge)}>
+              <span className={cn('h-1.5 w-1.5 rounded-full', statusBadge.dot)} />
               {getStatusLabel(decision.status)}
             </span>
           </div>
-          <p className="text-xs text-stone-500 mt-2">
-            لأغراض تنظيمية — للإجراء الرسمي يُرجى الرجوع لمنصة ملاك
+          <p className="mt-2 text-xs text-muted-foreground">
+            لأغراض تنظيمية، وللإجراء الرسمي يرجى الرجوع إلى منصة ملاك
           </p>
           <a
             href={getWhatsAppUrl(decision, decisionVotes, voterWeights, appData.building.name)}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 rounded-md bg-[#25D366] px-2.5 py-1 text-xs font-medium text-white hover:bg-[#20BD5A] transition-colors mt-2"
+            onClick={(event) => event.stopPropagation()}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
           >
             <Share2 className="h-3 w-3" />
             مشاركة عبر واتساب
@@ -163,19 +162,17 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
         </div>
       )}
 
-      {/* User vote status */}
       {userCanVote && isOpen && !myVote && (
-        <p className="text-xs font-medium text-amber-700 mt-2 pt-2 border-t border-stone-100">
+        <p className="mt-2 border-t border-border/70 pt-2 text-xs font-medium text-warning">
           لم تصوّت بعد
         </p>
       )}
       {userCanVote && myVote && (
-        <p className="text-xs font-medium text-emerald-700 mt-2 pt-2 border-t border-stone-100">
+        <p className="mt-2 border-t border-border/70 pt-2 text-xs font-medium text-success">
           صوّتت: {getVoteOptionLabel(myVote.option)}
         </p>
       )}
 
-      {/* Inline vote buttons on open decision cards */}
       {renderCompactVoteButtons()}
     </button>
   )

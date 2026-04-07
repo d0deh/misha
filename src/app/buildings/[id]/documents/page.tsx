@@ -1,11 +1,19 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Search, FileText, Eye, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Eye, FileText, Plus, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import {
+  PageHeader,
+  PageHeaderActions,
+  PageHeaderBody,
+  PageHeaderDescription,
+  PageHeaderEyebrow,
+  PageHeaderTitle,
+} from '@/components/ui/page-header'
 import {
   Select,
   SelectContent,
@@ -24,13 +32,13 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { getOwnerById, getDocumentTypeLabel } from '@/lib/mock-data'
+import { getDocumentTypeLabel, getOwnerById } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 import { DetailRow } from '@/components/ui/detail-section'
 import { useAppData } from '@/lib/app-data-context'
@@ -40,13 +48,13 @@ import { PermissionButton } from '@/components/ui/permission-button'
 import type { Document } from '@/lib/types'
 
 const docTypeBadgeStyles: Record<string, { dot: string; badge: string }> = {
-  statute: { dot: 'bg-teal-500', badge: 'bg-teal-50 text-teal-700 border-teal-200' },
-  minutes: { dot: 'bg-violet-500', badge: 'bg-violet-50 text-violet-700 border-violet-200' },
-  invoice: { dot: 'bg-amber-500', badge: 'bg-amber-50 text-amber-700 border-amber-200' },
-  contract: { dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  report: { dot: 'bg-stone-400', badge: 'bg-stone-100 text-stone-600 border-stone-200' },
-  decision: { dot: 'bg-stone-400', badge: 'bg-stone-100 text-stone-600 border-stone-200' },
-  other: { dot: 'bg-stone-400', badge: 'bg-stone-100 text-stone-600 border-stone-200' },
+  statute: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
+  minutes: { dot: 'bg-violet-500', badge: 'border-violet-200 bg-violet-50 text-violet-700' },
+  invoice: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
+  contract: { dot: 'bg-success', badge: 'border-success/20 bg-success/10 text-success' },
+  report: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
+  decision: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
+  other: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
 }
 
 const visibilityLabels: Record<string, string> = {
@@ -62,53 +70,49 @@ export default function DocumentsPage() {
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
-
-  // Upload dialog state
   const [uploadOpen, setUploadOpen] = useState(false)
   const [uploadTitle, setUploadTitle] = useState('')
   const [uploadType, setUploadType] = useState<string>('other')
   const [uploadVisibility, setUploadVisibility] = useState<string>('everyone')
   const [uploadNotes, setUploadNotes] = useState('')
   const [uploadFileName, setUploadFileName] = useState('مستند_جديد.pdf')
-
-  // View dialog state
   const [viewDoc, setViewDoc] = useState<Document | null>(null)
   const [viewOpen, setViewOpen] = useState(false)
 
   const hasUploadPermission = canUploadDocuments(role)
 
-  // Filter documents by visibility based on user role
   const visibleDocuments = useMemo(() => {
     const isBoardOrManager = ['chairman', 'vice_chairman', 'board_member', 'manager'].includes(role)
     const isOwnerOrAbove = role !== 'resident'
 
-    return documents.filter((doc) => {
-      const vis = doc.visibility || 'everyone'
-      if (vis === 'everyone') return true
-      if (vis === 'board_only') return isBoardOrManager
-      if (vis === 'owners_only') return isOwnerOrAbove
+    return documents.filter((document) => {
+      const visibility = document.visibility || 'everyone'
+      if (visibility === 'everyone') return true
+      if (visibility === 'board_only') return isBoardOrManager
+      if (visibility === 'owners_only') return isOwnerOrAbove
       return true
     })
   }, [documents, role])
 
   const filteredDocuments = useMemo(() => {
-    return visibleDocuments.filter((doc) => {
-      const matchesSearch = search === '' || doc.title.includes(search)
+    return visibleDocuments.filter((document) => {
+      const matchesSearch = search === '' || document.title.includes(search)
       const matchesType =
-        !typeFilter || typeFilter === 'all' || doc.documentType === typeFilter
+        !typeFilter || typeFilter === 'all' || document.documentType === typeFilter
       return matchesSearch && matchesType
     })
-  }, [visibleDocuments, search, typeFilter])
+  }, [search, typeFilter, visibleDocuments])
 
   function handleUploadSubmit() {
     if (!uploadTitle.trim()) return
+
     addDocument(
       {
         title: uploadTitle.trim(),
         documentType: uploadType as Document['documentType'],
         entityType: 'building',
         entityId: building.id,
-        fileUrl: '/documents/' + uploadFileName,
+        fileUrl: `/documents/${uploadFileName}`,
         uploadedBy: userId,
         visibility: uploadVisibility as Document['visibility'],
         notes: uploadNotes.trim() || undefined,
@@ -116,6 +120,7 @@ export default function DocumentsPage() {
       },
       userId
     )
+
     toast('تم رفع المستند بنجاح')
     setUploadOpen(false)
     setUploadTitle('')
@@ -125,202 +130,180 @@ export default function DocumentsPage() {
     setUploadFileName('مستند_جديد.pdf')
   }
 
-  function handleViewDoc(doc: Document) {
-    setViewDoc(doc)
+  function handleViewDoc(document: Document) {
+    setViewDoc(document)
     setViewOpen(true)
   }
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4">
-        <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-          <DialogTrigger
-            render={
-              <PermissionButton
-                hasPermission={hasUploadPermission}
-                tooltipText="ليس لديك صلاحية رفع المستندات"
-                size="sm"
-                className="bg-teal-600 text-white hover:bg-teal-700"
-              >
-                <Plus className="h-4 w-4" data-icon="inline-start" />
-                رفع مستند جديد
-              </PermissionButton>
-            }
-          />
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>رفع مستند جديد</DialogTitle>
-              <DialogDescription>أضف مستند جديد للمبنى</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="doc-title">العنوان</Label>
-                <Input
-                  id="doc-title"
-                  value={uploadTitle}
-                  onChange={(e) => setUploadTitle(e.target.value)}
-                  placeholder="عنوان المستند..."
-                  className="border-stone-200 focus-visible:ring-teal-500"
-                />
+      <PageHeader>
+        <PageHeaderBody>
+          <PageHeaderEyebrow>أرشيف المبنى</PageHeaderEyebrow>
+          <PageHeaderTitle>المستندات</PageHeaderTitle>
+          <PageHeaderDescription>{visibleDocuments.length} مستند</PageHeaderDescription>
+        </PageHeaderBody>
+        <PageHeaderActions>
+          <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+            <DialogTrigger
+              render={
+                <PermissionButton
+                  hasPermission={hasUploadPermission}
+                  tooltipText="ليس لديك صلاحية رفع المستندات"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4" data-icon="inline-start" />
+                  رفع مستند جديد
+                </PermissionButton>
+              }
+            />
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>رفع مستند جديد</DialogTitle>
+                <DialogDescription>أضف مستنداً جديداً للمبنى</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="doc-title">العنوان</Label>
+                  <Input
+                    id="doc-title"
+                    value={uploadTitle}
+                    onChange={(event) => setUploadTitle(event.target.value)}
+                    placeholder="عنوان المستند..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>نوع المستند</Label>
+                  <Select value={uploadType} onValueChange={(value) => setUploadType(value ?? 'other')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر نوع المستند" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="statute">نظام أساسي</SelectItem>
+                      <SelectItem value="minutes">محضر اجتماع</SelectItem>
+                      <SelectItem value="invoice">فاتورة</SelectItem>
+                      <SelectItem value="contract">عقد</SelectItem>
+                      <SelectItem value="report">تقرير</SelectItem>
+                      <SelectItem value="other">أخرى</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>مستوى الوصول</Label>
+                  <Select
+                    value={uploadVisibility}
+                    onValueChange={(value) => setUploadVisibility(value ?? 'everyone')}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر مستوى الوصول" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="everyone">الجميع</SelectItem>
+                      <SelectItem value="board_only">مجلس الإدارة فقط</SelectItem>
+                      <SelectItem value="owners_only">الملاك فقط</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="doc-notes">ملاحظات</Label>
+                  <Textarea
+                    id="doc-notes"
+                    value={uploadNotes}
+                    onChange={(event) => setUploadNotes(event.target.value)}
+                    placeholder="ملاحظات اختيارية..."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="doc-file">اسم الملف</Label>
+                  <Input
+                    id="doc-file"
+                    dir="ltr"
+                    value={uploadFileName}
+                    onChange={(event) => setUploadFileName(event.target.value)}
+                    placeholder="document.pdf"
+                  />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label>نوع المستند</Label>
-                <Select value={uploadType} onValueChange={(v) => setUploadType(v ?? 'other')} items={{ statute: 'نظام أساسي', minutes: 'محضر اجتماع', invoice: 'فاتورة', contract: 'عقد', report: 'تقرير', other: 'أخرى' }}>
-                  <SelectTrigger className="border-stone-200 focus:ring-teal-500">
-                    <SelectValue placeholder="اختر نوع المستند" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="statute">نظام أساسي</SelectItem>
-                    <SelectItem value="minutes">محضر اجتماع</SelectItem>
-                    <SelectItem value="invoice">فاتورة</SelectItem>
-                    <SelectItem value="contract">عقد</SelectItem>
-                    <SelectItem value="report">تقرير</SelectItem>
-                    <SelectItem value="other">أخرى</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>مستوى الوصول</Label>
-                <Select value={uploadVisibility} onValueChange={(v) => setUploadVisibility(v ?? 'everyone')} items={{ everyone: 'الجميع', board_only: 'مجلس الإدارة فقط', owners_only: 'الملاك فقط' }}>
-                  <SelectTrigger className="border-stone-200 focus:ring-teal-500">
-                    <SelectValue placeholder="اختر مستوى الوصول" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="everyone">الجميع</SelectItem>
-                    <SelectItem value="board_only">مجلس الإدارة فقط</SelectItem>
-                    <SelectItem value="owners_only">الملاك فقط</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="doc-notes">ملاحظات</Label>
-                <Textarea
-                  id="doc-notes"
-                  value={uploadNotes}
-                  onChange={(e) => setUploadNotes(e.target.value)}
-                  placeholder="ملاحظات اختيارية..."
-                  className="border-stone-200 focus-visible:ring-teal-500"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="doc-file">اسم الملف</Label>
-                <Input
-                  id="doc-file"
-                  value={uploadFileName}
-                  onChange={(e) => setUploadFileName(e.target.value)}
-                  placeholder="اسم الملف"
-                  className="border-stone-200 focus-visible:ring-teal-500"
-                  dir="ltr"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={handleUploadSubmit}
-                disabled={!uploadTitle.trim()}
-                className="bg-teal-600 text-white hover:bg-teal-700"
-              >
-                رفع المستند
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">المستندات</h1>
-          <p className="text-sm text-stone-600 mt-0.5">
-            {visibleDocuments.length} مستند
-          </p>
+              <DialogFooter>
+                <Button onClick={handleUploadSubmit} disabled={!uploadTitle.trim()}>
+                  رفع المستند
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </PageHeaderActions>
+      </PageHeader>
+
+      <div className="page-shell p-4 md:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="بحث بعنوان المستند..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="ps-9"
+            />
+          </div>
+          <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value ?? '')}>
+            <SelectTrigger className="w-full sm:w-44">
+              <SelectValue placeholder="كل الأنواع" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الأنواع</SelectItem>
+              <SelectItem value="statute">نظام أساسي</SelectItem>
+              <SelectItem value="minutes">محضر اجتماع</SelectItem>
+              <SelectItem value="invoice">فاتورة</SelectItem>
+              <SelectItem value="contract">عقد</SelectItem>
+              <SelectItem value="report">تقرير</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-500 pointer-events-none" />
-          <Input
-            placeholder="بحث بعنوان المستند..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="ps-9 border-stone-200 focus-visible:ring-teal-500"
-          />
-        </div>
-        <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v ?? '')} items={{ all: 'الكل', statute: 'نظام أساسي', minutes: 'محضر اجتماع', invoice: 'فاتورة', contract: 'عقد', report: 'تقرير' }}>
-          <SelectTrigger className="w-full sm:w-44 border-stone-200 focus:ring-teal-500">
-            <SelectValue placeholder="الكل" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">الكل</SelectItem>
-            <SelectItem value="statute">نظام أساسي</SelectItem>
-            <SelectItem value="minutes">محضر اجتماع</SelectItem>
-            <SelectItem value="invoice">فاتورة</SelectItem>
-            <SelectItem value="contract">عقد</SelectItem>
-            <SelectItem value="report">تقرير</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Table */}
-      <div className="rounded-lg border border-stone-200 overflow-x-auto">
+      <div className="data-table-shell">
         <Table>
           <TableHeader>
-            <TableRow className="bg-stone-100 hover:bg-stone-100">
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10">
-                العنوان
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10">
-                النوع
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10 hidden md:table-cell">
-                رفع بواسطة
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10">
-                التاريخ
-              </TableHead>
-              <TableHead className="text-xs font-medium uppercase text-stone-600 h-10 w-16">
-              </TableHead>
+            <TableRow className="bg-muted/45 hover:bg-muted/45">
+              <TableHead>العنوان</TableHead>
+              <TableHead>النوع</TableHead>
+              <TableHead className="hidden md:table-cell">رفع بواسطة</TableHead>
+              <TableHead>التاريخ</TableHead>
+              <TableHead className="w-16" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredDocuments.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-32 text-center align-middle">
-                  <FileText className="h-12 w-12 text-stone-300 mx-auto mb-3" />
-                  <p className="text-base font-medium text-stone-700">
-                    لا توجد مستندات مطابقة
-                  </p>
-                  <p className="text-sm text-stone-600 mt-1">
+                  <FileText className="mx-auto mb-3 h-12 w-12 text-muted-foreground/45" />
+                  <p className="text-base font-medium text-foreground">لا توجد مستندات مطابقة</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
                     حاول تغيير معايير البحث أو الفلاتر
                   </p>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredDocuments.map((doc) => {
-                const uploader = getOwnerById(doc.uploadedBy, owners)
-                const style = docTypeBadgeStyles[doc.documentType] || docTypeBadgeStyles.other
+              filteredDocuments.map((document) => {
+                const uploader = getOwnerById(document.uploadedBy, owners)
+                const style = docTypeBadgeStyles[document.documentType] || docTypeBadgeStyles.other
+
                 return (
-                  <TableRow
-                    key={doc.id}
-                    className="h-12 border-b border-stone-100"
-                  >
-                    <TableCell className="text-sm font-medium text-stone-900">
-                      {doc.title}
+                  <TableRow key={document.id} className="h-12">
+                    <TableCell className="text-sm font-medium text-foreground">
+                      {document.title}
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
-                          style.badge
-                        )}
-                      >
+                      <span className={cn('status-pill', style.badge)}>
                         <span className={cn('h-1.5 w-1.5 rounded-full', style.dot)} />
-                        {getDocumentTypeLabel(doc.documentType)}
+                        {getDocumentTypeLabel(document.documentType)}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm text-stone-700 hidden md:table-cell">
+                    <TableCell className="hidden text-sm text-foreground/85 md:table-cell">
                       {uploader?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
                     </TableCell>
-                    <TableCell className="text-sm text-stone-600 tabular-nums">
-                      {new Date(doc.createdAt).toLocaleDateString('ar-SA', {
+                    <TableCell className="text-sm tabular-nums text-muted-foreground">
+                      {new Date(document.createdAt).toLocaleDateString('ar-SA', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
@@ -330,11 +313,10 @@ export default function DocumentsPage() {
                       <Button
                         variant="ghost"
                         size="xs"
-                        onClick={() => handleViewDoc(doc)}
-                        className="text-stone-600 hover:text-stone-900"
+                        onClick={() => handleViewDoc(document)}
+                        className="text-muted-foreground hover:text-foreground"
                       >
                         <Eye className="h-3.5 w-3.5" />
-                        <span className="sr-only">عرض</span>
                         عرض
                       </Button>
                     </TableCell>
@@ -346,11 +328,10 @@ export default function DocumentsPage() {
         </Table>
       </div>
 
-      <p className="text-sm text-stone-600">
+      <p className="text-sm text-muted-foreground">
         عرض {filteredDocuments.length} من {visibleDocuments.length} مستند
       </p>
 
-      {/* View document detail dialog */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="sm:max-w-md">
           {viewDoc && (
@@ -360,10 +341,7 @@ export default function DocumentsPage() {
                 <DialogDescription>تفاصيل المستند</DialogDescription>
               </DialogHeader>
               <div className="space-y-3 py-2">
-                <DetailRow
-                  label="النوع"
-                  value={getDocumentTypeLabel(viewDoc.documentType)}
-                />
+                <DetailRow label="النوع" value={getDocumentTypeLabel(viewDoc.documentType)} />
                 <DetailRow
                   label="رفع بواسطة"
                   value={getOwnerById(viewDoc.uploadedBy, owners)?.fullName || '—'}
@@ -380,12 +358,8 @@ export default function DocumentsPage() {
                   label="مستوى الوصول"
                   value={visibilityLabels[viewDoc.visibility || 'everyone']}
                 />
-                {viewDoc.fileSize && (
-                  <DetailRow label="حجم الملف" value={viewDoc.fileSize} />
-                )}
-                {viewDoc.notes && (
-                  <DetailRow label="ملاحظات" value={viewDoc.notes} />
-                )}
+                {viewDoc.fileSize && <DetailRow label="حجم الملف" value={viewDoc.fileSize} />}
+                {viewDoc.notes && <DetailRow label="ملاحظات" value={viewDoc.notes} />}
               </div>
             </>
           )}
@@ -394,4 +368,3 @@ export default function DocumentsPage() {
     </div>
   )
 }
-

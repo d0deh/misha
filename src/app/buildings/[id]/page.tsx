@@ -9,13 +9,20 @@ import {
   Wrench,
 } from 'lucide-react'
 import {
+  PageHeader,
+  PageHeaderBody,
+  PageHeaderDescription,
+  PageHeaderEyebrow,
+  PageHeaderTitle,
+} from '@/components/ui/page-header'
+import {
   getCategoryLabel,
   getOwnerById,
   getOwnerRole,
   getOwnerUnits,
   getPriorityLabel,
-  getUserUnitIds,
   getRoleLabel,
+  getUserUnitIds,
   getVoteOptionLabel,
 } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
@@ -25,30 +32,43 @@ import { formatRelativeTime } from '@/lib/relative-time'
 import { getVotedAreaWeight } from '@/lib/vote-weights'
 
 const actionDotColor: Record<string, string> = {
-  create: 'bg-emerald-500',
-  vote: 'bg-teal-500',
-  update: 'bg-amber-500',
-  upload: 'bg-stone-400',
+  create: 'bg-success',
+  vote: 'bg-primary',
+  update: 'bg-warning',
+  upload: 'bg-muted-foreground',
 }
 
 const maintenanceStatusStyles: Record<string, { dot: string; badge: string }> = {
-  new: { dot: 'bg-amber-500', badge: 'bg-amber-50 text-amber-700 border-amber-200' },
-  in_progress: { dot: 'bg-teal-500', badge: 'bg-teal-50 text-teal-700 border-teal-200' },
+  new: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
+  in_progress: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
 }
 
 const categoryBadge: Record<string, string> = {
-  financial: 'bg-amber-50 text-amber-700 border-amber-200',
-  maintenance: 'bg-teal-50 text-teal-700 border-teal-200',
-  governance: 'bg-violet-50 text-violet-700 border-violet-200',
-  general: 'bg-stone-100 text-stone-600 border-stone-200',
+  financial: 'border-warning/20 bg-warning/10 text-warning',
+  maintenance: 'border-primary/20 bg-primary/10 text-primary',
+  governance: 'border-violet-200 bg-violet-50 text-violet-700',
+  general: 'border-border bg-muted text-muted-foreground',
 }
 
 const categoryBorder: Record<string, string> = {
-  financial: 'border-s-amber-400',
-  maintenance: 'border-s-teal-400',
+  financial: 'border-s-warning',
+  maintenance: 'border-s-primary',
   governance: 'border-s-violet-400',
-  general: 'border-s-stone-300',
+  general: 'border-s-border',
 }
+
+const summaryToneStyles = {
+  decisions: 'border-primary/10 bg-primary/10 text-primary',
+  maintenance: 'border-warning/15 bg-warning/10 text-warning',
+  units: 'border-info/15 bg-info/10 text-info',
+  activity: 'border-border/70 bg-muted/55 text-muted-foreground',
+} as const
+
+const signalToneStyles = {
+  default: 'border-border/70 bg-muted/55 text-foreground',
+  primary: 'border-primary/10 bg-primary/8 text-primary',
+  warning: 'border-warning/15 bg-warning/8 text-warning',
+} as const
 
 export default function DashboardPage() {
   const { userId, role, userName } = useUser()
@@ -71,14 +91,16 @@ export default function DashboardPage() {
   const isManager = role === 'manager'
   const userCanVote = canVote(role)
 
-  const occupiedUnits = units.filter((u) => u.occupancyStatus !== 'vacant').length
+  const occupiedUnits = units.filter((unit) => unit.occupancyStatus !== 'vacant').length
   const occupancyRate = Math.round((occupiedUnits / units.length) * 100)
-  const openDecisions = decisions.filter((d) => d.status === 'open')
+  const openDecisions = decisions.filter((decision) => decision.status === 'open')
   const activeMaintenanceCount = maintenanceRequests.filter(
-    (r) => r.status === 'new' || r.status === 'in_progress'
+    (request) => request.status === 'new' || request.status === 'in_progress'
   ).length
   const urgentMaintenance = maintenanceRequests.filter(
-    (r) => r.priority === 'urgent' && (r.status === 'new' || r.status === 'in_progress')
+    (request) =>
+      request.priority === 'urgent' &&
+      (request.status === 'new' || request.status === 'in_progress')
   )
   const recentActivity = activityLog.slice(0, 8)
   const today = new Date()
@@ -86,9 +108,10 @@ export default function DashboardPage() {
   const userUnitIds = getUserUnitIds(userId, ownershipLinks)
   const awaitingVote = getDecisionsAwaitingVote(userId)
   const userMaintenanceOpen = maintenanceRequests.filter(
-    (r) =>
-      (r.status === 'new' || r.status === 'in_progress') &&
-      (r.requesterId === userId || (r.unitId !== undefined && userUnitIds.includes(r.unitId)))
+    (request) =>
+      (request.status === 'new' || request.status === 'in_progress') &&
+      (request.requesterId === userId ||
+        (request.unitId !== undefined && userUnitIds.includes(request.unitId)))
   )
 
   const attentionItems: string[] = []
@@ -102,7 +125,7 @@ export default function DashboardPage() {
     }
   } else if (isManager) {
     const pendingMaintenance = maintenanceRequests.filter(
-      (r) => r.status === 'new' || r.status === 'in_progress'
+      (request) => request.status === 'new' || request.status === 'in_progress'
     ).length
     if (pendingMaintenance > 0) {
       attentionItems.push(`${pendingMaintenance} طلب صيانة يحتاج متابعة`)
@@ -118,7 +141,7 @@ export default function DashboardPage() {
 
   const displayDecisions = (() => {
     if (isAdmin || isManager) return openDecisions
-    const awaiting = new Set(awaitingVote.map((d) => d.id))
+    const awaiting = new Set(awaitingVote.map((decision) => decision.id))
     return [...openDecisions].sort((a, b) => {
       const aAwaiting = awaiting.has(a.id) ? 0 : 1
       const bAwaiting = awaiting.has(b.id) ? 0 : 1
@@ -133,13 +156,18 @@ export default function DashboardPage() {
       hint: userCanVote ? `${awaitingVote.length} بانتظار ردك` : 'تابع سير القرارات',
       href: `/buildings/${building.id}/decisions`,
       icon: Vote,
+      tone: 'decisions' as const,
     },
     {
       title: 'صيانة نشطة',
       value: activeMaintenanceCount,
-      hint: urgentMaintenance.length > 0 ? `${urgentMaintenance.length} مصنّف عاجل` : 'لا توجد طلبات عاجلة حالياً',
+      hint:
+        urgentMaintenance.length > 0
+          ? `${urgentMaintenance.length} مصنف عاجل`
+          : 'لا توجد طلبات عاجلة حالياً',
       href: `/buildings/${building.id}/maintenance`,
       icon: Wrench,
+      tone: 'maintenance' as const,
     },
     {
       title: 'وحدات مشغولة',
@@ -147,6 +175,7 @@ export default function DashboardPage() {
       hint: `نسبة الإشغال ${occupancyRate}٪`,
       href: `/buildings/${building.id}/units`,
       icon: Building2,
+      tone: 'units' as const,
     },
     {
       title: 'سجل النشاط',
@@ -154,6 +183,7 @@ export default function DashboardPage() {
       hint: 'الأحداث والتغييرات والعمليات',
       href: `/buildings/${building.id}/documents`,
       icon: FileText,
+      tone: 'activity' as const,
     },
   ]
 
@@ -170,72 +200,71 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-lg font-semibold text-stone-900">{greeting} {firstName}</p>
-        <p className="text-sm text-stone-500">{hijriDate}</p>
-      </div>
+      <PageHeader className="gap-3">
+        <PageHeaderBody>
+          <PageHeaderEyebrow>لوحة القيادة اليومية</PageHeaderEyebrow>
+          <PageHeaderTitle className="text-[1.55rem] md:text-[1.85rem]">
+            {greeting} {firstName}
+          </PageHeaderTitle>
+          <PageHeaderDescription>{hijriDate}</PageHeaderDescription>
+        </PageHeaderBody>
 
-      {attentionItems.length > 0 && (
-        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/75 px-3.5 py-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/90 bg-white/85 px-2.5 py-1 text-sm font-semibold text-amber-900 shadow-[0_1px_0_rgba(245,158,11,0.14)]">
-            <CircleAlert className="h-4 w-4 shrink-0 text-amber-700" />
-            <span>يحتاج انتباهك</span>
-          </div>
-          <ul className="mt-2 flex flex-wrap gap-2 ps-0">
-            {attentionItems.map((item) => (
-              <li key={item} className="list-none rounded-full bg-amber-100/70 px-2.5 py-1 text-sm text-amber-800">{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {commandCards.map((card) => (
-          <Link
-            key={card.title}
-            href={card.href}
-            className="group rounded-2xl border border-stone-200/90 bg-white/92 px-4 py-3.5 transition-colors hover:border-stone-300 hover:bg-white"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-stone-500">{card.title}</p>
-                <p className="mt-1.5 text-[1.7rem] font-semibold tabular-nums leading-none text-stone-950">
-                  {card.value}
-                </p>
-              </div>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-stone-100 text-stone-500 transition-colors group-hover:bg-stone-200/80 group-hover:text-stone-700">
-                <card.icon className="h-[18px] w-[18px]" />
-              </span>
+        {attentionItems.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 rounded-[1.15rem] border border-warning/20 bg-warning/8 px-3 py-2.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-warning/25 bg-card/92 px-2.5 py-1 text-sm font-semibold text-warning">
+              <CircleAlert className="h-4 w-4 shrink-0" />
+              <span>يحتاج انتباهك</span>
             </div>
-            <p className="mt-2 min-h-10 overflow-hidden text-xs leading-5 text-stone-600 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">{card.hint}</p>
+            <ul className="flex flex-wrap gap-2 ps-0">
+              {attentionItems.map((item) => (
+                <li
+                  key={item}
+                  className="list-none rounded-full border border-warning/12 bg-card/72 px-2.5 py-1 text-sm text-foreground"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </PageHeader>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {commandCards.map((card) => (
+          <Link key={card.title} href={card.href} className="metric-card group">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
+              <p className="mt-2 text-[2rem] font-semibold leading-none tabular-nums text-foreground">
+                {card.value}
+              </p>
+            </div>
+            <span className={cn('metric-card-icon', summaryToneStyles[card.tone])}>
+              <card.icon className="h-[18px] w-[18px]" />
+            </span>
+            <p className="metric-card-hint col-span-full">{card.hint}</p>
           </Link>
         ))}
       </div>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[1.75rem] border border-stone-200/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(28,25,23,0.05)] md:p-6">
+        <div className="page-shell p-5 md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold text-stone-500">
-                غرفة القرارات
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-stone-950">
-                القرارات التي تحرّك المبنى
+              <p className="section-heading-kicker">غرفة القرارات</p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">
+                القرارات التي تحرك المبنى
               </h2>
             </div>
-            <Link
-              href={`/buildings/${building.id}/decisions`}
-              className="text-sm font-medium text-teal-800 transition hover:text-teal-950"
-            >
+            <Link href={`/buildings/${building.id}/decisions`} className="section-heading-link">
               فتح مساحة التصويت
             </Link>
           </div>
 
           <div className="mt-5 space-y-4">
             {displayDecisions.length === 0 ? (
-              <div className="rounded-[1.5rem] border border-dashed border-stone-300 bg-stone-50 px-5 py-8 text-center">
-                <Vote className="mx-auto h-11 w-11 text-stone-300" />
-                <p className="mt-4 text-base font-medium text-stone-700">لا توجد قرارات مفتوحة</p>
+              <div className="rounded-[1.5rem] border border-dashed border-border bg-muted/45 px-5 py-8 text-center">
+                <Vote className="mx-auto h-11 w-11 text-muted-foreground/55" />
+                <p className="mt-4 text-base font-medium text-foreground">لا توجد قرارات مفتوحة</p>
               </div>
             ) : (
               displayDecisions.map((decision) => {
@@ -252,8 +281,8 @@ export default function DashboardPage() {
                   <div
                     key={decision.id}
                     className={cn(
-                      'rounded-[1.5rem] border border-stone-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#fcfbf8_100%)] p-5',
-                      categoryBorder[decision.category] || 'border-s-stone-300',
+                      'rounded-[1.45rem] border border-border/80 bg-[linear-gradient(180deg,_#fffdfa_0%,_#f8f4ee_100%)] p-5 shadow-[0_10px_28px_rgba(43,36,28,0.03)]',
+                      categoryBorder[decision.category] || 'border-s-border',
                       'border-s-[4px]'
                     )}
                   >
@@ -262,52 +291,56 @@ export default function DashboardPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <span
                             className={cn(
-                              'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium',
+                              'status-pill',
                               categoryBadge[decision.category] || categoryBadge.general
                             )}
                           >
                             {getCategoryLabel(decision.category)}
                           </span>
-                          <span className="text-xs text-stone-500">
+                          <span className="text-xs text-muted-foreground">
                             {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
                           </span>
                         </div>
-                        <h3 className="mt-3 text-lg font-semibold text-stone-950">{decision.title}</h3>
-                        <p className="mt-2 text-sm leading-7 text-stone-600">{decision.description}</p>
+                        <h3 className="mt-3 text-lg font-semibold text-foreground">{decision.title}</h3>
+                        <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                          {decision.description}
+                        </p>
                       </div>
-                      <div className="min-w-40 rounded-2xl bg-stone-100 px-4 py-3">
-                        <p className="text-xs text-stone-500">التقدم</p>
-                        <p className="mt-2 text-2xl font-semibold tabular-nums text-stone-950">
+                      <div className="min-w-40 rounded-[1.2rem] border border-border/70 bg-muted/45 px-4 py-3">
+                        <p className="text-xs text-muted-foreground">التقدم</p>
+                        <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
                           {voteProgress}٪
                         </p>
-                        <p className="mt-1 text-xs text-stone-500">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {decisionVotes.length} ملاك يمثلون {Math.round(votedAreaWeight)}٪
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100">
+                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted/80">
                       <div
-                        className="h-full rounded-full bg-teal-600 transition-all ms-auto"
+                        className="ms-auto h-full rounded-full bg-primary transition-all"
                         style={{ width: `${voteProgress}%` }}
                       />
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
                       {userCanVote && !userVote && (
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-800">
+                        <span className="status-pill border-warning/20 bg-warning/10 text-warning">
                           لم تصوّت بعد
                         </span>
                       )}
                       {userCanVote && userVote && (
-                        <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">
+                        <span className="status-pill border-success/20 bg-success/10 text-success">
                           صوّتت: {getVoteOptionLabel(userVote.option)}
                         </span>
                       )}
-                      <span className="text-stone-500">
+                      <span className="text-muted-foreground">
                         أنشأه{' '}
-                        {getOwnerById(decision.createdBy, owners)?.fullName.split(' ').slice(0, 2).join(' ') ||
-                          'مجهول'}
+                        {getOwnerById(decision.createdBy, owners)?.fullName
+                          .split(' ')
+                          .slice(0, 2)
+                          .join(' ') || 'مجهول'}
                       </span>
                     </div>
                   </div>
@@ -318,110 +351,119 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[1.75rem] border border-stone-200/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(28,25,23,0.05)] md:p-6">
+          <div className="page-shell p-5 md:p-6">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold text-stone-500">
-                  طلبات الصيانة
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-stone-950">
+                <p className="section-heading-kicker">طلبات الصيانة</p>
+                <h2 className="mt-2 text-2xl font-semibold text-foreground">
                   الطلبات التي تحتاج متابعة
                 </h2>
               </div>
-              <Link
-                href={`/buildings/${building.id}/maintenance`}
-                className="text-sm font-medium text-teal-800 transition hover:text-teal-950"
-              >
+              <Link href={`/buildings/${building.id}/maintenance`} className="section-heading-link">
                 إدارة الطلبات
               </Link>
             </div>
 
             <div className="mt-5 space-y-3">
               {maintenanceRequests
-                .filter((r) => r.status === 'new' || r.status === 'in_progress')
+                .filter((request) => request.status === 'new' || request.status === 'in_progress')
                 .slice(0, 4)
                 .map((request) => (
                   <div
                     key={request.id}
-                    className="rounded-[1.35rem] border border-stone-200 bg-stone-50/80 px-4 py-4"
+                    className="rounded-[1.3rem] border border-border/75 bg-muted/35 px-4 py-4"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-base font-medium text-stone-900">{request.title}</p>
-                        <p className="mt-1 text-sm text-stone-600">
+                        <p className="text-base font-medium text-foreground">{request.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {request.unitId
-                            ? `الوحدة ${units.find((u) => u.id === request.unitId)?.unitNumber || ''}`
+                            ? `الوحدة ${units.find((unit) => unit.id === request.unitId)?.unitNumber || ''}`
                             : 'المرافق المشتركة'}
                         </p>
                       </div>
                       {(() => {
-                        const sStyle = maintenanceStatusStyles[request.status] || maintenanceStatusStyles.new
+                        const statusStyle =
+                          maintenanceStatusStyles[request.status] || maintenanceStatusStyles.new
                         return (
-                          <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium shrink-0', sStyle.badge)}>
-                            <span className={cn('h-1.5 w-1.5 rounded-full', sStyle.dot)} />
+                          <span className={cn('status-pill shrink-0', statusStyle.badge)}>
+                            <span className={cn('h-1.5 w-1.5 rounded-full', statusStyle.dot)} />
                             {request.status === 'new' ? 'جديد' : 'قيد التنفيذ'}
                           </span>
                         )
                       })()}
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-stone-500">
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                       <span>{getPriorityLabel(request.priority)}</span>
                       <span>·</span>
-                      <span>{getOwnerById(request.requesterId, owners)?.fullName.split(' ').slice(0, 2).join(' ')}</span>
+                      <span>
+                        {getOwnerById(request.requesterId, owners)?.fullName
+                          .split(' ')
+                          .slice(0, 2)
+                          .join(' ')}
+                      </span>
                     </div>
                   </div>
                 ))}
             </div>
           </div>
 
-          <div className="rounded-[1.75rem] border border-stone-200/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(28,25,23,0.05)] md:p-6">
-            <p className="text-xs font-semibold text-stone-500">
-              مؤشرات المبنى
-            </p>
+          <div className="page-shell p-5 md:p-6">
+            <p className="section-heading-kicker">مؤشرات المبنى</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-              <SignalTile label="إجمالي الوحدات" value={building.unitCount} note="مسجلة في سجل المبنى" />
-              <SignalTile label="الإشغال" value={`${occupancyRate}٪`} note={`${occupiedUnits} وحدة مشغولة حالياً`} />
-              <SignalTile label="طلبات مفتوحة" value={activeMaintenanceCount} note="صيانة جديدة أو قيد التنفيذ" />
+              <SignalTile
+                label="إجمالي الوحدات"
+                value={building.unitCount}
+                note="مسجلة في سجل المبنى"
+                tone="default"
+              />
+              <SignalTile
+                label="الإشغال"
+                value={`${occupancyRate}٪`}
+                note={`${occupiedUnits} وحدة مشغولة حالياً`}
+                tone="primary"
+              />
+              <SignalTile
+                label="طلبات مفتوحة"
+                value={activeMaintenanceCount}
+                note="صيانة جديدة أو قيد التنفيذ"
+                tone="warning"
+              />
             </div>
           </div>
         </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-        <div className="rounded-[1.75rem] border border-stone-200/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(28,25,23,0.05)] md:p-6">
+        <div className="page-shell p-5 md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold text-stone-500">
-                سجل النشاط
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-stone-950">
-                آخر التحديثات
-              </h2>
+              <p className="section-heading-kicker">سجل النشاط</p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">آخر التحديثات</h2>
             </div>
           </div>
 
           <div className="mt-6 space-y-5">
             {recentActivity.map((activity) => {
               const actor = getOwnerById(activity.actorId, owners)
-              const actorName =
-                actor?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'
+              const actorName = actor?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'
               const description = activity.descriptionAr
                 .replace(actor?.fullName || '', '')
-                .replace(/^[\sâ€”â€“-]+/, '')
-              const dotColor = actionDotColor[activity.action] || 'bg-stone-400'
+                .replace(/^[\s—–-]+/, '')
+              const dotColor = actionDotColor[activity.action] || 'bg-muted-foreground'
 
               return (
                 <div key={activity.id} className="grid grid-cols-[auto_1fr] gap-4">
                   <div className="flex flex-col items-center">
                     <span className={cn('mt-1 h-3 w-3 rounded-full', dotColor)} />
-                    <span className="mt-2 h-full w-px bg-stone-200" />
+                    <span className="mt-2 h-full w-px bg-border" />
                   </div>
                   <div className="pb-5">
-                    <p className="text-sm leading-7 text-stone-700">
-                      <span className="font-semibold text-stone-950">{actorName}</span>{' '}
+                    <p className="text-sm leading-7 text-muted-foreground">
+                      <span className="font-semibold text-foreground">{actorName}</span>{' '}
                       {description}
                     </p>
-                    <p className="mt-1 text-xs text-stone-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {formatRelativeTime(activity.timestamp)}
                     </p>
                   </div>
@@ -431,20 +473,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-stone-200/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(28,25,23,0.05)] md:p-6">
+        <div className="page-shell p-5 md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold text-stone-500">
-                لمحة عن الأعضاء
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-stone-950">
+              <p className="section-heading-kicker">لمحة عن الأعضاء</p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">
                 الملاك والأدوار والتمثيل
               </h2>
             </div>
-            <Link
-              href={`/buildings/${building.id}/association`}
-              className="text-sm font-medium text-teal-800 transition hover:text-teal-950"
-            >
+            <Link href={`/buildings/${building.id}/association`} className="section-heading-link">
               فتح سجل الجمعية
             </Link>
           </div>
@@ -457,21 +494,21 @@ export default function DashboardPage() {
               return (
                 <div
                   key={owner.id}
-                  className="rounded-[1.35rem] border border-stone-200 bg-[linear-gradient(180deg,_#ffffff_0%,_#faf8f3_100%)] p-4"
+                  className="rounded-[1.3rem] border border-border/80 bg-[linear-gradient(180deg,_#fffdfa_0%,_#f7f2eb_100%)] p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-base font-medium text-stone-900">{owner.fullName}</p>
-                      <p className="mt-1 text-sm text-stone-600">
+                      <p className="text-base font-medium text-foreground">{owner.fullName}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {ownerRole ? getRoleLabel(ownerRole.role) : 'مالك'}
                       </p>
                     </div>
-                    <div className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
+                    <div className="rounded-full border border-border/70 bg-muted/55 px-3 py-1 text-xs font-medium text-foreground">
                       {ownerUnits.length} وحدة
                     </div>
                   </div>
-                  <p className="mt-3 text-sm text-stone-500">
-                    {ownerUnits.map((unit) => unit.unitNumber).join(', ')}
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {ownerUnits.map((unit) => unit.unitNumber).join('، ')}
                   </p>
                 </div>
               )
@@ -487,16 +524,20 @@ function SignalTile({
   label,
   value,
   note,
+  tone = 'default',
 }: {
   label: string
   value: string | number
   note: string
+  tone?: keyof typeof signalToneStyles
 }) {
   return (
-    <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50/75 px-3.5 py-3">
-      <p className="text-xs font-medium text-stone-500">{label}</p>
-      <p className="mt-1.5 text-[1.7rem] font-semibold tabular-nums leading-none text-stone-950">{value}</p>
-      <p className="mt-1.5 text-sm text-stone-600">{note}</p>
+    <div className={cn('rounded-[1.25rem] border px-3.5 py-3', signalToneStyles[tone])}>
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1.5 text-[1.7rem] font-semibold leading-none tabular-nums text-foreground">
+        {value}
+      </p>
+      <p className="mt-1.5 text-sm text-muted-foreground">{note}</p>
     </div>
   )
 }
