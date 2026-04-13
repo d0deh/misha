@@ -15,7 +15,7 @@ export default async function BuildingLayout({
     <UserProvider buildingId={id}>
       <AppDataProvider buildingId={id}>
         <ToastProvider>
-          <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(18,63,69,0.1),_transparent_28%),linear-gradient(180deg,_#f4ede3_0%,_#f1eadf_44%,_#f8f5ef_100%)]">
+          <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.06),_transparent_28%),linear-gradient(180deg,_#f8f9fb_0%,_#f1f5f9_100%)]">
             <Topbar buildingId={id} />
             <main className="mx-auto w-full max-w-7xl px-4 pb-24 pt-5 md:px-6 md:pb-10 md:pt-6 lg:pt-7">
               {children}

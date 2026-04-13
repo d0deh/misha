@@ -162,7 +162,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-black/8 bg-shell text-shell-foreground shadow-[0_12px_36px_rgba(8,21,24,0.16)]">
+      <header className="sticky top-0 z-40 border-b border-black/8 bg-shell text-shell-foreground shadow-[0_12px_36px_rgba(15,23,42,0.16)]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex items-start justify-between gap-4 py-4 md:gap-6">
             <div className="flex min-w-0 flex-1 items-start gap-3">
@@ -186,7 +186,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                     <TooltipContent
                       side="bottom"
                       align="end"
-                      className="max-w-[min(80vw,28rem)] whitespace-normal bg-stone-950 text-stone-50"
+                      className="max-w-[min(80vw,28rem)] whitespace-normal bg-slate-900 text-slate-50"
                     >
                       {buildingData?.building.name || 'مِشاع'}
                     </TooltipContent>
@@ -335,7 +335,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
         </div>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-[rgba(255,253,250,0.94)] px-3 py-2 shadow-[0_-10px_30px_rgba(43,36,28,0.08)] backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-[rgba(248,249,251,0.94)] px-3 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.06)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-1">
           {visibleNav.map((item) => {
             const isActive =

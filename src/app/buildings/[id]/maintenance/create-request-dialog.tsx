@@ -91,7 +91,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="عنوان الطلب"
-              className="border-stone-200 focus-visible:ring-teal-500"
+              className="border-slate-200 focus-visible:ring-ring"
             />
           </div>
           <div className="space-y-1.5">
@@ -100,7 +100,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               placeholder="وصف تفصيلي للمشكلة"
-              className="border-stone-200 focus-visible:ring-teal-500"
+              className="border-slate-200 focus-visible:ring-ring"
             />
           </div>
           <div className="space-y-1.5">
@@ -113,7 +113,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
               }
               return (
                 <Select value={newLocation} onValueChange={(v) => setNewLocation(v ?? '')} items={items}>
-                  <SelectTrigger className="border-stone-200 focus:ring-teal-500">
+                  <SelectTrigger className="border-slate-200 focus:ring-ring">
                     <SelectValue placeholder="اختر الموقع" />
                   </SelectTrigger>
                   <SelectContent>
@@ -131,7 +131,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
           <div className="space-y-1.5">
             <Label>الأولوية</Label>
             <Select value={newPriority} onValueChange={(v) => setNewPriority(v as typeof newPriority)} items={{ urgent: 'عاجلة', high: 'عالية', medium: 'متوسطة', low: 'منخفضة' }}>
-              <SelectTrigger className="border-stone-200 focus:ring-teal-500">
+              <SelectTrigger className="border-slate-200 focus:ring-ring">
                 <SelectValue placeholder="اختر الأولوية" />
               </SelectTrigger>
               <SelectContent>
@@ -145,7 +145,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
         </div>
         <DialogFooter>
           <Button
-            className="bg-teal-700 text-white hover:bg-teal-800"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={!newTitle.trim() || !newDescription.trim()}
             onClick={handleCreateRequest}
           >

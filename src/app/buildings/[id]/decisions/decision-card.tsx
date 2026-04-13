@@ -102,7 +102,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
                   handleVoteClick(option.key)
                 }}
                 className={cn(
-                  'flex-1 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors',
+                  'flex-1 rounded-lg border px-3 py-3 text-sm font-medium transition-colors',
                   isActive ? option.activeClass : option.inactiveClass
                 )}
               >
@@ -181,15 +181,19 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
 
       {isOpen ? (
         <>
-          <div className="mb-2">
-            <div className="mb-1 flex items-center justify-between text-sm text-muted-foreground">
-              <span>
-                صوّت ملاك يمثلون {Math.round(votedAreaWeight)}٪ من المساحة ({decisionVotes.length}{' '}
-                ملاك)
+          <div className="mb-3">
+            <div className="mb-1.5 flex items-baseline justify-between">
+              <span className="text-base font-semibold tabular-nums text-foreground">
+                {voteProgress}٪
+                <span className="ms-1.5 text-xs font-normal text-muted-foreground">
+                  من المساحة مُمثَّلة
+                </span>
               </span>
-              <span className="tabular-nums">{voteProgress}٪</span>
+              <span className="text-xs text-muted-foreground">
+                {decisionVotes.length} ملاك صوّتوا
+              </span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-muted/80">
+            <div className="h-2 overflow-hidden rounded-full bg-muted/80">
               <div
                 className="ms-auto h-full rounded-full bg-primary transition-all"
                 style={{ width: `${voteProgress}%` }}
@@ -197,9 +201,22 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
             </div>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <p className={cn('text-xs', isUrgent ? 'font-medium text-warning' : 'text-muted-foreground')}>
-              {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
-            </p>
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                'text-xs',
+                isUrgent
+                  ? 'rounded-md bg-warning/10 px-2 py-1 font-medium text-warning'
+                  : 'text-muted-foreground'
+              )}>
+                {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
+              </span>
+              {userCanVote && !myVote && (
+                <span className="text-xs font-medium text-warning">· لم تصوّت بعد</span>
+              )}
+              {myVote && (
+                <span className="text-xs font-medium text-success">· صوّتت: {getVoteOptionLabel(myVote.option)}</span>
+              )}
+            </div>
             <a
               href={getOpenDecisionWhatsAppUrl(decision, appData.building.name)}
               target="_blank"
@@ -244,12 +261,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
         </div>
       )}
 
-      {userCanVote && isOpen && !myVote && (
-        <p className="mt-2 border-t border-border/70 pt-2 text-xs font-medium text-warning">
-          لم تصوّت بعد
-        </p>
-      )}
-      {userCanVote && myVote && (
+      {userCanVote && !isOpen && myVote && (
         <p className="mt-2 border-t border-border/70 pt-2 text-xs font-medium text-success">
           صوّتت: {getVoteOptionLabel(myVote.option)}
         </p>

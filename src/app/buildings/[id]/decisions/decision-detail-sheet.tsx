@@ -171,9 +171,9 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
           {selectedDecision && (
             <ScrollArea className="h-full">
               <div className="flex flex-col">
-                <div className="bg-teal-800 p-5 pe-12 text-white">
+                <div className="bg-shell p-5 pe-12 text-white">
                   <SheetHeader className="p-0">
-                    <SheetDescription className="text-teal-300 text-xs">
+                    <SheetDescription className="text-shell-muted text-xs">
                       تفاصيل القرار
                     </SheetDescription>
                     <SheetTitle className="text-white text-lg font-bold">
@@ -208,12 +208,12 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
 
                 <div className="p-5 space-y-5">
                   <DetailSection title="الوصف">
-                    <p className="text-base text-stone-700 leading-relaxed">
+                    <p className="text-base text-slate-700 leading-relaxed">
                       {selectedDecision.description}
                     </p>
                   </DetailSection>
 
-                  <Separator className="bg-stone-100" />
+                  <Separator className="bg-slate-100" />
 
                   {/* Vote buttons in sheet — full-width */}
                   {userCanVote && selectedDecision.status === 'open' && (
@@ -221,13 +221,13 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                       <DetailSection title="صوّت الآن">
                         {renderVoteButtons()}
                       </DetailSection>
-                      <Separator className="bg-stone-100" />
+                      <Separator className="bg-slate-100" />
                     </>
                   )}
 
                   <DetailSection title="التصويت">
                     {selectedVotes.length === 0 ? (
-                      <p className="text-sm text-stone-600">لم يصوّت أحد بعد</p>
+                      <p className="text-sm text-slate-600">لم يصوّت أحد بعد</p>
                     ) : (
                       <div className="space-y-2">
                         {selectedVotes.map((vote) => {
@@ -239,14 +239,14 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                               key={vote.id}
                               className={cn(
                                 'flex items-center gap-3 py-1.5',
-                                isMe && 'bg-teal-50/50 -mx-2 px-2 rounded'
+                                isMe && 'bg-primary/5 -mx-2 px-2 rounded'
                               )}
                             >
-                              <span className="text-sm text-stone-700 flex-1">
+                              <span className="text-sm text-slate-700 flex-1">
                                 {voter?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'}
-                                {isMe && <span className="text-xs text-teal-700 ms-1">(أنت)</span>}
+                                {isMe && <span className="text-xs text-primary ms-1">(أنت)</span>}
                               </span>
-                              <span className="text-xs text-stone-500 tabular-nums">{Math.round(getVoterWeight(vote.voterId, voterWeights) * 10) / 10}٪</span>
+                              <span className="text-xs text-slate-500 tabular-nums">{Math.round(getVoterWeight(vote.voterId, voterWeights) * 10) / 10}٪</span>
                               <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', vStyle.text)}>
                                 <span className={cn('h-1.5 w-1.5 rounded-full', vStyle.dot)} />
                                 {vStyle.label}
@@ -258,28 +258,28 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                     )}
                   </DetailSection>
 
-                  <div className="rounded-lg bg-stone-50 border border-stone-100 px-4 py-3">
-                    <p className="text-sm text-stone-600">
+                  <div className="rounded-lg bg-slate-50 border border-slate-100 px-4 py-3">
+                    <p className="text-sm text-slate-600">
                       <span className="font-medium text-emerald-700">{Math.round(approveWeight)}٪ موافق</span>
                       {' · '}
                       <span className="font-medium text-red-700">{Math.round(rejectWeight)}٪ رافض</span>
                       {' · '}
-                      <span className="font-medium text-stone-600">{Math.round(abstainWeight)}٪ ممتنع</span>
+                      <span className="font-medium text-slate-600">{Math.round(abstainWeight)}٪ ممتنع</span>
                     </p>
-                    <p className="text-xs text-stone-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       ({approveCount} موافق · {rejectCount} رافض · {abstainCount} ممتنع من {voterWeights.length} مالك)
                     </p>
-                    <p className="text-xs text-stone-400 mt-1.5">
+                    <p className="text-xs text-slate-400 mt-1.5">
                       الحد الأدنى للموافقة: ٧٥٪ من مساحة المصوّتين
                     </p>
                   </div>
 
                   {selectedDecision.result && (
                     <>
-                      <Separator className="bg-stone-100" />
+                      <Separator className="bg-slate-100" />
                       <DetailSection title="النتيجة">
-                        <p className="text-base text-stone-700">{selectedDecision.result}</p>
-                        <p className="text-xs text-stone-500 mt-2">
+                        <p className="text-base text-slate-700">{selectedDecision.result}</p>
+                        <p className="text-xs text-slate-500 mt-2">
                           لأغراض تنظيمية — للإجراء الرسمي يُرجى الرجوع لمنصة ملاك
                         </p>
                         <a
@@ -298,7 +298,7 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                   {/* Close voting button — chairman or vice chairman */}
                   {['chairman', 'vice_chairman'].includes(role) && selectedDecision.status === 'open' && (
                     <>
-                      <Separator className="bg-stone-100" />
+                      <Separator className="bg-slate-100" />
                       <Button
                         variant="destructive"
                         className="w-full"
@@ -311,7 +311,7 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
 
                   {/* Created at timestamp */}
                   {selectedDecision.createdAt && (
-                    <p className="text-xs text-stone-400 pt-2">
+                    <p className="text-xs text-slate-400 pt-2">
                       أُنشئ {formatRelativeTime(selectedDecision.createdAt)}
                     </p>
                   )}

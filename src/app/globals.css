@@ -59,48 +59,48 @@
 }
 
 :root {
-  --background: #f6f1e7;
-  --foreground: #1f1c18;
-  --card: #fffdfa;
-  --card-foreground: #1f1c18;
-  --popover: #fffdf9;
-  --popover-foreground: #1f1c18;
-  --primary: #0f5f5a;
-  --primary-foreground: #f8faf9;
-  --secondary: #e8ddd0;
-  --secondary-foreground: #1f1c18;
-  --muted: #efe7dc;
-  --muted-foreground: #6e665d;
-  --accent: #d6c5ab;
-  --accent-foreground: #3b3127;
-  --destructive: #b4534f;
-  --destructive-foreground: #fff8f7;
-  --success: #2f7d58;
-  --success-foreground: #f5faf7;
-  --warning: #b7791f;
-  --warning-foreground: #fffaf2;
-  --info: #2e6f87;
-  --info-foreground: #f6fbfd;
-  --border: #d8cebf;
-  --input: #d8cebf;
-  --ring: #0f766e;
-  --shell: #123f45;
-  --shell-foreground: #f3f6f5;
-  --shell-muted: #bcd0cc;
-  --chart-1: #0f766e;
-  --chart-2: #c08a36;
-  --chart-3: #476e70;
-  --chart-4: #4d8f68;
-  --chart-5: #c25a4e;
+  --background: #f8f9fb;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0d9488;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #334155;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #e2e8f0;
+  --accent-foreground: #1e293b;
+  --destructive: #dc2626;
+  --destructive-foreground: #fef2f2;
+  --success: #059669;
+  --success-foreground: #ecfdf5;
+  --warning: #d97706;
+  --warning-foreground: #fffbeb;
+  --info: #0284c7;
+  --info-foreground: #f0f9ff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #0d9488;
+  --shell: #0f172a;
+  --shell-foreground: #f8fafc;
+  --shell-muted: #94a3b8;
+  --chart-1: #0d9488;
+  --chart-2: #d97706;
+  --chart-3: #0284c7;
+  --chart-4: #059669;
+  --chart-5: #dc2626;
   --radius: 0.95rem;
-  --sidebar: #fffdfa;
-  --sidebar-foreground: #1f1c18;
-  --sidebar-primary: #0f5f5a;
-  --sidebar-primary-foreground: #f8faf9;
-  --sidebar-accent: #eef6f5;
-  --sidebar-accent-foreground: #0f5f5a;
-  --sidebar-border: #ddd4c7;
-  --sidebar-ring: #0f766e;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0fdfa;
+  --sidebar-accent-foreground: #0d9488;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #0d9488;
 }
 
 @layer base {
@@ -115,8 +115,8 @@
   body {
     @apply min-h-screen bg-background text-foreground leading-relaxed antialiased;
     background-image:
-      radial-gradient(circle at top, rgb(18 63 69 / 0.08), transparent 30%),
-      linear-gradient(180deg, #f5efe5 0%, #f2ece3 44%, #f8f5ef 100%);
+      radial-gradient(circle at top, rgb(13 148 136 / 0.05), transparent 30%),
+      linear-gradient(180deg, #f8f9fb 0%, #f1f5f9 100%);
   }
 
   ::selection {
@@ -127,11 +127,11 @@
 
 @layer components {
   .page-shell {
-    @apply rounded-[1.75rem] border border-border/85 bg-card/96 shadow-[0_14px_40px_rgba(43,36,28,0.05)];
+    @apply rounded-[1.75rem] border border-border/85 bg-card/96 shadow-[0_14px_40px_rgba(15,23,42,0.04)];
   }
 
   .page-header-block {
-    @apply flex flex-col gap-4 rounded-[1.6rem] border border-border/80 bg-card/85 px-5 py-4 shadow-[0_10px_28px_rgba(43,36,28,0.04)] md:px-6;
+    @apply flex flex-col gap-4 rounded-[1.6rem] border border-border/80 bg-card/85 px-5 py-4 shadow-[0_10px_28px_rgba(15,23,42,0.03)] md:px-6;
   }
 
   .page-header-title {
@@ -155,7 +155,7 @@
   }
 
   .metric-card {
-    @apply grid min-h-36 grid-cols-[1fr_auto] gap-3 rounded-[1.4rem] border border-border/80 bg-card/96 p-4 shadow-[0_10px_28px_rgba(43,36,28,0.04)] transition-colors hover:border-border hover:bg-card;
+    @apply grid min-h-36 grid-cols-[1fr_auto] gap-3 rounded-[1.4rem] border border-border/80 bg-card/96 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.03)] transition-colors hover:border-border hover:bg-card;
   }
 
   .metric-card-icon {
@@ -167,6 +167,6 @@
   }
 
   .data-table-shell {
-    @apply overflow-hidden rounded-[1.35rem] border border-border/85 bg-card/98 shadow-[0_10px_24px_rgba(43,36,28,0.03)];
+    @apply overflow-hidden rounded-[1.35rem] border border-border/85 bg-card/98 shadow-[0_10px_24px_rgba(15,23,42,0.025)];
   }
 }

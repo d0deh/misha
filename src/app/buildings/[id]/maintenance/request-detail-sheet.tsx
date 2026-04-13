@@ -134,9 +134,9 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
           {selectedRequest && (
             <ScrollArea className="h-full">
               <div className="flex flex-col">
-                <div className="bg-teal-800 p-5 pe-12 text-white">
+                <div className="bg-shell p-5 pe-12 text-white">
                   <SheetHeader className="p-0">
-                    <SheetDescription className="text-teal-300 text-xs">
+                    <SheetDescription className="text-shell-muted text-xs">
                       بيانات طلب الصيانة
                     </SheetDescription>
                     <SheetTitle className="text-white text-lg font-bold">
@@ -174,33 +174,33 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                       value={selectedRequester?.fullName || '—'}
                     />
                     <div>
-                      <p className="text-sm text-stone-600 mb-1">الوصف</p>
-                      <p className="text-base text-stone-700 leading-relaxed">
+                      <p className="text-sm text-slate-600 mb-1">الوصف</p>
+                      <p className="text-base text-slate-700 leading-relaxed">
                         {selectedRequest.description}
                       </p>
                     </div>
                   </DetailSection>
 
                   {/* Comment thread — positioned prominently */}
-                  <Separator className="bg-stone-100" />
+                  <Separator className="bg-slate-100" />
                   <DetailSection title="التعليقات">
                     {selectedComments.length === 0 ? (
-                      <p className="text-sm text-stone-500">لا توجد تعليقات بعد</p>
+                      <p className="text-sm text-slate-500">لا توجد تعليقات بعد</p>
                     ) : (
                       <div className="space-y-3">
                         {selectedComments.map((c) => {
                           const author = getOwnerById(c.authorId, owners)
                           return (
-                            <div key={c.id} className="rounded-lg bg-stone-50 p-3">
+                            <div key={c.id} className="rounded-lg bg-slate-50 p-3">
                               <div className="flex items-center justify-between gap-2 mb-1">
-                                <span className="text-sm font-medium text-stone-800">
+                                <span className="text-sm font-medium text-slate-800">
                                   {author?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
                                 </span>
-                                <span className="text-xs text-stone-500">
+                                <span className="text-xs text-slate-500">
                                   {formatRelativeTime(c.timestamp)}
                                 </span>
                               </div>
-                              <p className="text-sm text-stone-700 leading-relaxed">
+                              <p className="text-sm text-slate-700 leading-relaxed">
                                 {c.text}
                               </p>
                             </div>
@@ -213,11 +213,11 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
                         placeholder="أضف تعليقاً..."
-                        className="flex-1 min-h-10 border-stone-200 focus-visible:ring-teal-500"
+                        className="flex-1 min-h-10 border-slate-200 focus-visible:ring-ring"
                       />
                       <Button
                         size="sm"
-                        className="bg-teal-700 text-white hover:bg-teal-800 shrink-0"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
                         disabled={!commentText.trim()}
                         onClick={() => handleAddComment(selectedRequest.id)}
                       >
@@ -230,7 +230,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   {/* Status workflow buttons */}
                   {(selectedRequest.status === 'new' || selectedRequest.status === 'in_progress') && (
                     <>
-                      <Separator className="bg-stone-100" />
+                      <Separator className="bg-slate-100" />
                       <DetailSection title="إجراءات">
                         <div className="flex flex-wrap gap-2">
                           {selectedRequest.status === 'new' && (
@@ -238,7 +238,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                               hasPermission={showManagement}
                               tooltipText="للإدارة فقط"
                               size="sm"
-                              className="bg-teal-700 text-white hover:bg-teal-800"
+                              className="bg-primary text-primary-foreground hover:bg-primary/90"
                               onClick={() => handleStartProgress(selectedRequest.id)}
                             >
                               بدء التنفيذ
@@ -249,7 +249,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                               hasPermission={showManagement}
                               tooltipText="للإدارة فقط"
                               size="sm"
-                              className="bg-emerald-700 text-white hover:bg-emerald-800"
+                              className="bg-success text-white hover:bg-success/90"
                               onClick={() => setConfirmCompleteOpen(true)}
                             >
                               تم الإنجاز
@@ -272,17 +272,17 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   {/* Vendor & cost fields (management only) */}
                   {showManagement && (
                     <>
-                      <Separator className="bg-stone-100" />
+                      <Separator className="bg-slate-100" />
                       <DetailSection title="التنفيذ">
                         <div className="space-y-3">
                           <div>
-                            <Label className="text-sm text-stone-600 mb-1">المقاول</Label>
+                            <Label className="text-sm text-slate-600 mb-1">المقاول</Label>
                             <div className="flex items-center gap-2">
                               <Input
                                 value={vendorDraft}
                                 onChange={(e) => setVendorDraft(e.target.value)}
                                 placeholder="اسم المقاول"
-                                className="flex-1 border-stone-200 focus-visible:ring-teal-500"
+                                className="flex-1 border-slate-200 focus-visible:ring-ring"
                               />
                               <Button
                                 size="sm"
@@ -295,14 +295,14 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                             </div>
                           </div>
                           <div>
-                            <Label className="text-sm text-stone-600 mb-1">التكلفة المقدرة (ريال)</Label>
+                            <Label className="text-sm text-slate-600 mb-1">التكلفة المقدرة (ريال)</Label>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
                                 value={costEstimateDraft}
                                 onChange={(e) => setCostEstimateDraft(e.target.value)}
                                 placeholder="0"
-                                className="flex-1 border-stone-200 focus-visible:ring-teal-500"
+                                className="flex-1 border-slate-200 focus-visible:ring-ring"
                               />
                               <Button
                                 size="sm"
@@ -316,14 +316,14 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                           </div>
                           {selectedRequest.status === 'completed' && (
                             <div>
-                              <Label className="text-sm text-stone-600 mb-1">التكلفة النهائية (ريال)</Label>
+                              <Label className="text-sm text-slate-600 mb-1">التكلفة النهائية (ريال)</Label>
                               <div className="flex items-center gap-2">
                                 <Input
                                   type="number"
                                   value={finalCostDraft}
                                   onChange={(e) => setFinalCostDraft(e.target.value)}
                                   placeholder="0"
-                                  className="flex-1 border-stone-200 focus-visible:ring-teal-500"
+                                  className="flex-1 border-slate-200 focus-visible:ring-ring"
                                 />
                                 <Button
                                   size="sm"
@@ -341,7 +341,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                     </>
                   )}
 
-                  <Separator className="bg-stone-100" />
+                  <Separator className="bg-slate-100" />
                   <DetailSection title="التواريخ">
                     <DetailRow
                       label="تاريخ الإنشاء"
