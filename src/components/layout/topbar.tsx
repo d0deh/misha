@@ -7,14 +7,14 @@ import {
   Building2,
   Check,
   ChevronDown,
+  ChevronLeft,
   ClipboardList,
   FileText,
   LayoutDashboard,
-  Menu,
+  MoreHorizontal,
   Users,
   Vote,
   Wrench,
-  X,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -24,6 +24,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Sheet,
+  SheetContent,
+} from '@/components/ui/sheet'
 import {
   Tooltip,
   TooltipContent,
@@ -114,7 +118,7 @@ function getNavItems(buildingId: string): NavItem[] {
 }
 
 export function Topbar({ buildingId }: { buildingId: string }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false)
   const [renderedAt] = useState(() => Date.now())
   const pathname = usePathname()
   const { userId, role, switchUser, switchableUsers } = useUser()
@@ -153,6 +157,13 @@ export function Topbar({ buildingId }: { buildingId: string }) {
     (item) => item.minRole === null || nonResidentRoles.includes(role)
   )
 
+  // Primary bottom nav: dashboard, decisions, maintenance
+  const primaryNav = visibleNav.slice(0, 3)
+  // "More" sheet: association, units, documents
+  const moreNav = visibleNav.slice(3)
+  const moreHasBadge = moreNav.some((item) => (badgeCounts[item.href] || 0) > 0)
+  const moreIsActive = moreNav.some((item) => pathname.startsWith(item.href))
+
   const activeItem =
     visibleNav.find((item) =>
       item.href === `/buildings/${buildingId}`
@@ -166,11 +177,11 @@ export function Topbar({ buildingId }: { buildingId: string }) {
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex items-start justify-between gap-4 py-4 md:gap-6">
             <div className="flex min-w-0 flex-1 items-start gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/12 bg-white/10 text-base font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/12 bg-white/10 text-base font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:h-12 md:w-12">
                 م
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-shell-muted">مركز قيادة مشاع</p>
+                <p className="hidden text-xs font-medium text-shell-muted md:block">مركز قيادة مشاع</p>
                 <TooltipProvider delay={150}>
                   <Tooltip>
                     <TooltipTrigger
@@ -235,13 +246,6 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <button
-                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/14 bg-white/8 text-shell-foreground transition hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 lg:hidden"
-                onClick={() => setMobileMenuOpen((open) => !open)}
-                aria-label={mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
             </div>
           </div>
 
@@ -285,59 +289,12 @@ export function Topbar({ buildingId }: { buildingId: string }) {
             </div>
           </div>
 
-          <div className="border-t border-white/8 py-3 lg:hidden">
-            <div className="rounded-[1.35rem] border border-white/12 bg-white/7 px-4 py-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-shell-muted">
-                <activeItem.icon className="h-3.5 w-3.5 text-shell-foreground" />
-                {activeItem.title}
-              </div>
-              <p className="mt-1 text-sm text-shell-foreground/88">{activeItem.description}</p>
-            </div>
-          </div>
-
-          {mobileMenuOpen && (
-            <div className="border-t border-white/10 py-3 lg:hidden">
-              <div className="flex flex-col gap-2">
-                {visibleNav.map((item) => {
-                  const isActive =
-                    item.href === `/buildings/${buildingId}`
-                      ? pathname === item.href
-                      : pathname.startsWith(item.href)
-
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={cn(
-                        'rounded-[1.2rem] border px-4 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
-                        isActive
-                          ? 'border-white/15 bg-white/12 text-shell-foreground'
-                          : 'border-transparent bg-white/6 text-shell-foreground/88 hover:bg-white/10'
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                          <item.icon className="h-4 w-4" />
-                          <NavBadge count={badgeCounts[item.href] || 0} ringClassName="ring-shell" />
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium">{item.title}</p>
-                          <p className="mt-0.5 text-xs text-shell-muted">{item.description}</p>
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </header>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-[rgba(248,249,251,0.94)] px-3 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.06)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-1">
-          {visibleNav.map((item) => {
+          {primaryNav.map((item) => {
             const isActive =
               item.href === `/buildings/${buildingId}`
                 ? pathname === item.href
@@ -356,15 +313,75 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                 )}
               >
                 <span className="relative flex h-11 w-11 items-center justify-center rounded-xl">
-                  <MobileIcon className="h-4 w-4" />
+                  <MobileIcon className="h-5 w-5" />
                   <NavBadge count={badgeCounts[item.href] || 0} ringClassName="ring-card" />
                 </span>
-                <span className="truncate text-xs font-medium">{item.title}</span>
+                <span className="text-[11px] font-medium">{item.title === 'لوحة التحكم' ? 'الرئيسية' : item.title}</span>
               </Link>
             )
           })}
+          <button
+            onClick={() => setMoreSheetOpen(true)}
+            className={cn(
+              'flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 text-center transition-colors',
+              moreIsActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+            )}
+          >
+            <span className="relative flex h-11 w-11 items-center justify-center rounded-xl">
+              <MoreHorizontal className="h-5 w-5" />
+              {moreHasBadge && (
+                <span
+                  className="pointer-events-none absolute h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-card"
+                  style={{ insetInlineEnd: '0.35rem', insetBlockStart: '0.35rem' }}
+                />
+              )}
+            </span>
+            <span className="text-[11px] font-medium">المزيد</span>
+          </button>
         </div>
       </nav>
+
+      {/* "More" bottom sheet */}
+      <Sheet open={moreSheetOpen} onOpenChange={setMoreSheetOpen}>
+        <SheetContent side="bottom" className="rounded-t-[1.5rem] px-0 pb-8 pt-0">
+          <div className="flex justify-center py-3">
+            <div className="h-1 w-8 rounded-full bg-border" />
+          </div>
+          <nav className="space-y-1 px-4">
+            {moreNav.map((item) => {
+              const isActive = pathname.startsWith(item.href)
+              const badge = badgeCounts[item.href] || 0
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMoreSheetOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3.5 rounded-xl px-4 py-3.5 transition-colors',
+                    isActive ? 'bg-primary/8 text-primary' : 'text-foreground hover:bg-muted/70'
+                  )}
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/70">
+                    <item.icon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">{item.description}</p>
+                  </div>
+                  {badge > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-semibold text-destructive-foreground">
+                      {badge}
+                    </span>
+                  )}
+                  <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </Link>
+              )
+            })}
+          </nav>
+        </SheetContent>
+      </Sheet>
     </>
   )
 }

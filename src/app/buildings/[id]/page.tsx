@@ -216,7 +216,28 @@ export default function DashboardPage() {
         )}
       </PageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Compact stat pills — mobile */}
+      <div className="flex gap-3 md:hidden">
+        <Link
+          href={`/buildings/${building.id}/decisions`}
+          className="flex flex-1 items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3.5 py-3 transition-colors hover:bg-primary/4"
+        >
+          <Vote className="h-4 w-4 shrink-0 text-primary" />
+          <span className="text-lg font-semibold tabular-nums text-foreground">{openDecisions.length}</span>
+          <span className="text-xs text-muted-foreground">قرار مفتوح</span>
+        </Link>
+        <Link
+          href={`/buildings/${building.id}/maintenance`}
+          className="flex flex-1 items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3.5 py-3 transition-colors hover:bg-primary/4"
+        >
+          <Wrench className="h-4 w-4 shrink-0 text-warning" />
+          <span className="text-lg font-semibold tabular-nums text-foreground">{activeMaintenanceCount}</span>
+          <span className="text-xs text-muted-foreground">صيانة نشطة</span>
+        </Link>
+      </div>
+
+      {/* Full metric cards — desktop */}
+      <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         {commandCards.map((card) => (
           <Link key={card.title} href={card.href} className="metric-card group">
             <div className="min-w-0">
@@ -399,7 +420,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="page-shell p-5 md:p-6">
+          <div className="hidden page-shell p-5 xl:block md:p-6">
             <p className="section-heading-kicker">مؤشرات المبنى</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
               <SignalTile
@@ -429,13 +450,13 @@ export default function DashboardPage() {
         <div className="page-shell p-5 md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-heading-kicker">سجل النشاط</p>
+              <p className="section-heading-kicker">آخر النشاط</p>
               <h2 className="mt-2 text-2xl font-semibold text-foreground">آخر التحديثات</h2>
             </div>
           </div>
 
           <div className="mt-6 space-y-5">
-            {recentActivity.map((activity) => {
+            {recentActivity.map((activity, activityIndex) => {
               const actor = getOwnerById(activity.actorId, owners)
               const actorName = actor?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'
               const description = activity.descriptionAr
@@ -444,7 +465,7 @@ export default function DashboardPage() {
               const dotColor = actionDotColor[activity.action] || 'bg-muted-foreground'
 
               return (
-                <div key={activity.id} className="grid grid-cols-[auto_1fr] gap-4">
+                <div key={activity.id} className={cn('grid grid-cols-[auto_1fr] gap-4', activityIndex >= 4 && 'hidden md:grid')}>
                   <div className="flex flex-col items-center">
                     <span className={cn('mt-1 h-3 w-3 rounded-full', dotColor)} />
                     <span className="mt-2 h-full w-px bg-border" />
@@ -464,7 +485,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="page-shell p-5 md:p-6">
+        <div className="hidden page-shell p-5 md:block md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="section-heading-kicker">لمحة عن الأعضاء</p>
