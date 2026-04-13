@@ -37,7 +37,6 @@ export function CreateDecisionDialog({ open, onOpenChange }: CreateDecisionDialo
   const [formDescription, setFormDescription] = useState('')
   const [formCategory, setFormCategory] = useState<'financial' | 'maintenance' | 'governance' | 'general'>('general')
   const [formDeadline, setFormDeadline] = useState('')
-  const [formAttachmentName, setFormAttachmentName] = useState('')
   const [formErrors, setFormErrors] = useState<{ title?: boolean; description?: boolean }>({})
 
   const today = new Date()
@@ -48,7 +47,6 @@ export function CreateDecisionDialog({ open, onOpenChange }: CreateDecisionDialo
     setFormDescription('')
     setFormCategory('general')
     setFormDeadline('')
-    setFormAttachmentName('')
     setFormErrors({})
   }
 
@@ -149,16 +147,6 @@ export function CreateDecisionDialog({ open, onOpenChange }: CreateDecisionDialo
             />
           </div>
 
-          {/* Attachment name */}
-          <div className="space-y-1.5">
-            <Label htmlFor="dec-attachment">اسم المرفق (اختياري)</Label>
-            <Input
-              id="dec-attachment"
-              value={formAttachmentName}
-              onChange={(e) => setFormAttachmentName(e.target.value)}
-              placeholder="مثال: ميزانية-2026.pdf"
-            />
-          </div>
         </div>
 
         <DialogFooter>

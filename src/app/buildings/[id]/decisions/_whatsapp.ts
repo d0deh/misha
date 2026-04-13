@@ -25,3 +25,24 @@ export function getWhatsAppUrl(
 
   return `https://wa.me/?text=${encodeURIComponent(message)}`
 }
+
+export function getOpenDecisionWhatsAppUrl(
+  decision: Decision,
+  buildingName: string
+) {
+  const deadline = new Date(decision.votingDeadline).toLocaleDateString('ar-SA', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+
+  const message = `🏢 مِشاع — تصويت جاري
+
+القرار: ${decision.title}
+المبنى: ${buildingName}
+آخر موعد: ${deadline}
+
+شارك رأيك!`
+
+  return `https://wa.me/?text=${encodeURIComponent(message)}`
+}

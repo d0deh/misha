@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import { Share2 } from 'lucide-react'
 import {
   getCategoryLabel,
@@ -19,7 +20,7 @@ import {
   statusBadgeStyles,
   voteButtonOptions,
 } from './_constants'
-import { getWhatsAppUrl } from './_whatsapp'
+import { getWhatsAppUrl, getOpenDecisionWhatsAppUrl } from './_whatsapp'
 
 interface DecisionCardProps {
   decision: Decision
@@ -48,44 +49,106 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
   const statusBadge = statusBadgeStyles[decision.status] || statusBadgeStyles.closed
   const myVote = getUserVoteForDecision(userId, decision.id)
 
-  function handleVote(option: 'approve' | 'reject' | 'abstain') {
-    const existingVote = getUserVoteForDecision(userId, decision.id)
+  const [pendingVote, setPendingVote] = useState<'approve' | 'reject' | 'abstain' | null>(null)
+  const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  useEffect(() => {
+    return () => {
+      if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+    }
+  }, [])
+
+  function confirmVote(option: 'approve' | 'reject' | 'abstain') {
+    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+    setPendingVote(null)
+
+    const existingVote = getUserVoteForDecision(userId, decision.id)
     if (existingVote) {
       if (existingVote.option === option) return
       appData.changeVote(decision.id, userId, option)
+      toast('تم تعديل تصويتك')
     } else {
       appData.addVote(decision.id, userId, option, userName)
+      toast('تم تسجيل تصويتك')
     }
+  }
 
-    toast('تم تسجيل تصويتك')
+  function handleVoteClick(option: 'approve' | 'reject' | 'abstain') {
+    if (pendingVote === option) {
+      confirmVote(option)
+      return
+    }
+    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+    setPendingVote(option)
+    pendingTimeout.current = setTimeout(() => setPendingVote(null), 5000)
   }
 
   function renderCompactVoteButtons() {
     if (!isOpen || !userCanVote) return null
 
-    return (
-      <div className="mt-3 flex items-center gap-2 border-t border-border/70 pt-3">
-        {voteButtonOptions.map((option) => {
-          const isActive = myVote?.option === option.key
+    const pendingOption = pendingVote ? voteButtonOptions.find((o) => o.key === pendingVote) : null
 
-          return (
-            <button
-              key={option.key}
-              onClick={(event) => {
-                event.stopPropagation()
-                handleVote(option.key)
-              }}
-              className={cn(
-                'flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors',
-                isActive ? option.activeClass : option.inactiveClass
-              )}
-            >
-              {option.label}
-              {isActive && ' ✓'}
-            </button>
-          )
-        })}
+    return (
+      <div className="mt-3 border-t border-border/70 pt-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {voteButtonOptions.map((option) => {
+            const isActive = myVote?.option === option.key
+
+            return (
+              <button
+                key={option.key}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  handleVoteClick(option.key)
+                }}
+                className={cn(
+                  'flex-1 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors',
+                  isActive ? option.activeClass : option.inactiveClass
+                )}
+              >
+                {option.label}
+                {isActive && ' ✓'}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Inline confirmation strip */}
+        <div
+          className={cn(
+            'grid transition-all duration-200 ease-out',
+            pendingVote ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0'
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/40 px-3.5 py-2.5">
+              <span className="text-sm text-foreground">
+                تأكيد التصويت: <span className="font-medium">{pendingOption?.label}؟</span>
+              </span>
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    if (pendingVote) confirmVote(pendingVote)
+                  }}
+                  className="rounded-md bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  تأكيد
+                </button>
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+                    setPendingVote(null)
+                  }}
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -133,19 +196,38 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
               />
             </div>
           </div>
-          <p className={cn('text-xs', isUrgent ? 'font-medium text-warning' : 'text-muted-foreground')}>
-            {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className={cn('text-xs', isUrgent ? 'font-medium text-warning' : 'text-muted-foreground')}>
+              {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
+            </p>
+            <a
+              href={getOpenDecisionWhatsAppUrl(decision, appData.building.name)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => event.stopPropagation()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
+            >
+              <Share2 className="h-3 w-3" />
+              تذكير عبر واتساب
+            </a>
+          </div>
         </>
       ) : (
         <div>
           <div className="flex items-center justify-between gap-2">
-            {decision.result && <p className="truncate text-xs text-muted-foreground">{decision.result}</p>}
             <span className={cn('status-pill shrink-0', statusBadge.badge)}>
               <span className={cn('h-1.5 w-1.5 rounded-full', statusBadge.dot)} />
               {getStatusLabel(decision.status)}
             </span>
           </div>
+          {decision.result && (
+            <p className={cn(
+              'mt-1.5 text-sm',
+              decision.status === 'approved' ? 'text-success' : decision.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'
+            )}>
+              {decision.result}
+            </p>
+          )}
           <p className="mt-2 text-xs text-muted-foreground">
             لأغراض تنظيمية، وللإجراء الرسمي يرجى الرجوع إلى منصة ملاك
           </p>

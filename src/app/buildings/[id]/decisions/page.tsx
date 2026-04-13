@@ -33,12 +33,21 @@ export default function DecisionsPage() {
   )
   const awaitingVote = userCanVote ? getDecisionsAwaitingVote(userId) : []
 
-  function renderEmpty(message: string) {
+  function renderEmpty(message: string, showCreate = false) {
     return (
       <div className="page-shell px-4 py-8 text-center">
         <Vote className="mx-auto mb-3 h-12 w-12 text-muted-foreground/45" />
         <p className="text-base font-medium text-foreground">{message}</p>
         <p className="mt-1 text-sm text-muted-foreground">ستظهر هنا القرارات عند إنشائها</p>
+        {showCreate && canCreateDecision(role) && (
+          <button
+            onClick={() => setCreateOpen(true)}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/8 px-3.5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/15"
+          >
+            <Plus className="h-4 w-4" />
+            قرار جديد
+          </button>
+        )}
       </div>
     )
   }
@@ -70,13 +79,13 @@ export default function DecisionsPage() {
       <Tabs defaultValue={0} className="space-y-4">
         <TabsList variant="line">
           <TabsTrigger value={0}>مفتوحة ({openDecisions.length})</TabsTrigger>
-          <TabsTrigger value={1}>مغلقة ({closedDecisions.length})</TabsTrigger>
+          <TabsTrigger value={1}>مُنتهية ({closedDecisions.length})</TabsTrigger>
           <TabsTrigger value={2}>الكل ({decisions.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value={0}>
           {openDecisions.length === 0 ? (
-            renderEmpty('لا توجد قرارات مفتوحة حالياً')
+            renderEmpty('لا توجد قرارات مفتوحة حالياً', true)
           ) : (
             <div className="space-y-3">
               {openDecisions.map((decision) => (
@@ -95,7 +104,7 @@ export default function DecisionsPage() {
 
         <TabsContent value={1}>
           {closedDecisions.length === 0 ? (
-            renderEmpty('لا توجد قرارات مغلقة')
+            renderEmpty('لا توجد قرارات مُنتهية')
           ) : (
             <div className="space-y-3">
               {closedDecisions.map((decision) => (

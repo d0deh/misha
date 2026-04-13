@@ -355,7 +355,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                     : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground'
                 )}
               >
-                <span className="relative flex h-8 w-8 items-center justify-center rounded-xl">
+                <span className="relative flex h-11 w-11 items-center justify-center rounded-xl">
                   <MobileIcon className="h-4 w-4" />
                   <NavBadge count={badgeCounts[item.href] || 0} ringClassName="ring-card" />
                 </span>

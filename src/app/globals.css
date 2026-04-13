@@ -130,10 +130,6 @@
     @apply rounded-[1.75rem] border border-border/85 bg-card/96 shadow-[0_14px_40px_rgba(43,36,28,0.05)];
   }
 
-  .page-shell-muted {
-    @apply rounded-[1.5rem] border border-border/80 bg-muted/55;
-  }
-
   .page-header-block {
     @apply flex flex-col gap-4 rounded-[1.6rem] border border-border/80 bg-card/85 px-5 py-4 shadow-[0_10px_28px_rgba(43,36,28,0.04)] md:px-6;
   }

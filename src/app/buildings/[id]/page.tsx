@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import {
   Building2,
+  ChevronLeft,
   CircleAlert,
   FileText,
   Vote,
@@ -26,6 +27,8 @@ import {
   getVoteOptionLabel,
 } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { categoryBadge, categoryBorder } from './decisions/_constants'
+import { statusStyles as maintenanceStatusStyles } from './maintenance/_constants'
 import { useUser, canVote } from '@/lib/user-context'
 import { useAppData } from '@/lib/app-data-context'
 import { formatRelativeTime } from '@/lib/relative-time'
@@ -38,24 +41,6 @@ const actionDotColor: Record<string, string> = {
   upload: 'bg-muted-foreground',
 }
 
-const maintenanceStatusStyles: Record<string, { dot: string; badge: string }> = {
-  new: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
-  in_progress: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
-}
-
-const categoryBadge: Record<string, string> = {
-  financial: 'border-warning/20 bg-warning/10 text-warning',
-  maintenance: 'border-primary/20 bg-primary/10 text-primary',
-  governance: 'border-violet-200 bg-violet-50 text-violet-700',
-  general: 'border-border bg-muted text-muted-foreground',
-}
-
-const categoryBorder: Record<string, string> = {
-  financial: 'border-s-warning',
-  maintenance: 'border-s-primary',
-  governance: 'border-s-violet-400',
-  general: 'border-s-border',
-}
 
 const summaryToneStyles = {
   decisions: 'border-primary/10 bg-primary/10 text-primary',
@@ -114,28 +99,28 @@ export default function DashboardPage() {
         (request.unitId !== undefined && userUnitIds.includes(request.unitId)))
   )
 
-  const attentionItems: string[] = []
+  const attentionItems: { text: string; href: string }[] = []
 
   if (isAdmin) {
     if (urgentMaintenance.length > 0) {
-      attentionItems.push(`${urgentMaintenance.length} طلب صيانة عاجل`)
+      attentionItems.push({ text: `${urgentMaintenance.length} طلب صيانة عاجل`, href: `/buildings/${building.id}/maintenance` })
     }
     if (openDecisions.length > 0) {
-      attentionItems.push(`${openDecisions.length} قرار مفتوح بانتظار إجراء`)
+      attentionItems.push({ text: `${openDecisions.length} قرار مفتوح بانتظار إجراء`, href: `/buildings/${building.id}/decisions` })
     }
   } else if (isManager) {
     const pendingMaintenance = maintenanceRequests.filter(
       (request) => request.status === 'new' || request.status === 'in_progress'
     ).length
     if (pendingMaintenance > 0) {
-      attentionItems.push(`${pendingMaintenance} طلب صيانة يحتاج متابعة`)
+      attentionItems.push({ text: `${pendingMaintenance} طلب صيانة يحتاج متابعة`, href: `/buildings/${building.id}/maintenance` })
     }
   } else {
     if (awaitingVote.length > 0) {
-      attentionItems.push(`${awaitingVote.length} قرار بانتظار تصويتك`)
+      attentionItems.push({ text: `${awaitingVote.length} قرار بانتظار تصويتك`, href: `/buildings/${building.id}/decisions` })
     }
     if (userMaintenanceOpen.length > 0) {
-      attentionItems.push(`${userMaintenanceOpen.length} طلب صيانة مفتوح على وحداتك`)
+      attentionItems.push({ text: `${userMaintenanceOpen.length} طلب صيانة مفتوح على وحداتك`, href: `/buildings/${building.id}/maintenance` })
     }
   }
 
@@ -217,11 +202,13 @@ export default function DashboardPage() {
             </div>
             <ul className="flex flex-wrap gap-2 ps-0">
               {attentionItems.map((item) => (
-                <li
-                  key={item}
-                  className="list-none rounded-full border border-warning/12 bg-card/72 px-2.5 py-1 text-sm text-foreground"
-                >
-                  {item}
+                <li key={item.text} className="list-none">
+                  <Link
+                    href={item.href}
+                    className="rounded-full border border-warning/12 bg-card/72 px-2.5 py-1 text-sm text-foreground transition-colors hover:bg-card hover:border-warning/25"
+                  >
+                    {item.text}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -242,6 +229,10 @@ export default function DashboardPage() {
               <card.icon className="h-[18px] w-[18px]" />
             </span>
             <p className="metric-card-hint col-span-full">{card.hint}</p>
+            <span className="col-span-full flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+              عرض التفاصيل
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </span>
           </Link>
         ))}
       </div>

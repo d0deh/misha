@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Share2 } from 'lucide-react'
 import {
   Sheet,
@@ -39,6 +39,8 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
   const { decisions, getDecisionVotes, getUserVoteForDecision, owners, voterWeights } = appData
 
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false)
+  const [pendingVote, setPendingVote] = useState<'approve' | 'reject' | 'abstain' | null>(null)
+  const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const selectedDecision = decisions.find((d) => d.id === decisionId)
   const selectedVotes = selectedDecision
@@ -51,27 +53,54 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
   const rejectWeight = selectedVotes.filter(v => v.option === 'reject').reduce((s, v) => s + getVoterWeight(v.voterId, voterWeights), 0)
   const abstainWeight = selectedVotes.filter(v => v.option === 'abstain').reduce((s, v) => s + getVoterWeight(v.voterId, voterWeights), 0)
 
-  function handleVote(option: 'approve' | 'reject' | 'abstain') {
+  useEffect(() => {
+    return () => {
+      if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+    }
+  }, [])
+
+  // Reset pending vote when sheet closes or decision changes
+  useEffect(() => {
+    setPendingVote(null)
+    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+  }, [decisionId, open])
+
+  function confirmVote(option: 'approve' | 'reject' | 'abstain') {
     if (!decisionId) return
+    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+    setPendingVote(null)
+
     const existingVote = getUserVoteForDecision(userId, decisionId)
     if (existingVote) {
       if (existingVote.option === option) return
       appData.changeVote(decisionId, userId, option)
+      toast('تم تعديل تصويتك')
     } else {
       appData.addVote(decisionId, userId, option, userName)
+      toast('تم تسجيل تصويتك')
     }
-    toast('تم تسجيل تصويتك ✓')
+  }
+
+  function handleVoteClick(option: 'approve' | 'reject' | 'abstain') {
+    if (pendingVote === option) {
+      confirmVote(option)
+      return
+    }
+    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+    setPendingVote(option)
+    pendingTimeout.current = setTimeout(() => setPendingVote(null), 5000)
   }
 
   function handleCloseDecision() {
     if (!decisionId) return
     appData.closeDecision(decisionId, userId)
-    toast('تم إغلاق التصويت ✓')
+    toast('تم إغلاق التصويت')
   }
 
   function renderVoteButtons() {
     if (!selectedDecision || selectedDecision.status !== 'open' || !userCanVote) return null
     const myVote = getUserVoteForDecision(userId, selectedDecision.id)
+    const pendingOption = pendingVote ? voteButtonOptions.find((o) => o.key === pendingVote) : null
 
     return (
       <div className="space-y-2">
@@ -82,7 +111,7 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
               key={opt.key}
               onClick={(e) => {
                 e.stopPropagation()
-                handleVote(opt.key)
+                handleVoteClick(opt.key)
               }}
               className={cn(
                 'w-full rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors',
@@ -94,6 +123,43 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
             </button>
           )
         })}
+
+        {/* Inline confirmation strip */}
+        <div
+          className={cn(
+            'grid transition-all duration-200 ease-out',
+            pendingVote ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/40 px-3.5 py-2.5">
+              <span className="text-sm text-foreground">
+                تأكيد التصويت: <span className="font-medium">{pendingOption?.label}؟</span>
+              </span>
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (pendingVote) confirmVote(pendingVote)
+                  }}
+                  className="rounded-md bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  تأكيد
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+                    setPendingVote(null)
+                  }}
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -202,6 +268,9 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                     </p>
                     <p className="text-xs text-stone-500 mt-1">
                       ({approveCount} موافق · {rejectCount} رافض · {abstainCount} ممتنع من {voterWeights.length} مالك)
+                    </p>
+                    <p className="text-xs text-stone-400 mt-1.5">
+                      الحد الأدنى للموافقة: ٧٥٪ من مساحة المصوّتين
                     </p>
                   </div>
 

@@ -36,6 +36,7 @@ import {
 import { useAppData } from '@/lib/app-data-context'
 import { useUser, canManageMaintenance } from '@/lib/user-context'
 import { cn } from '@/lib/utils'
+import { formatRelativeTime } from '@/lib/relative-time'
 import type { MaintenanceRequest } from '@/lib/types'
 import { priorityStyles, statusStyles } from './_constants'
 import { CreateRequestDialog } from './create-request-dialog'
@@ -189,7 +190,78 @@ export default function MaintenancePage() {
         </div>
       </div>
 
-      <div className="data-table-shell">
+      {/* Active filter chips */}
+      {((statusFilter && statusFilter !== 'all') || (priorityFilter && priorityFilter !== 'all')) && (
+        <div className="flex flex-wrap gap-2">
+          {statusFilter && statusFilter !== 'all' && (
+            <button
+              onClick={() => setStatusFilter('')}
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/8 px-2.5 py-1 text-sm text-primary transition-colors hover:bg-primary/15"
+            >
+              {getStatusLabel(statusFilter)}
+              <span className="text-xs">✕</span>
+            </button>
+          )}
+          {priorityFilter && priorityFilter !== 'all' && (
+            <button
+              onClick={() => setPriorityFilter('')}
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/8 px-2.5 py-1 text-sm text-primary transition-colors hover:bg-primary/15"
+            >
+              {getPriorityLabel(priorityFilter)}
+              <span className="text-xs">✕</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Mobile card view */}
+      <div className="space-y-3 md:hidden">
+        {filteredRequests.length === 0 ? (
+          <div className="page-shell px-4 py-8 text-center">
+            <Wrench className="mx-auto mb-3 h-12 w-12 text-muted-foreground/45" />
+            <p className="text-base font-medium text-foreground">لا توجد طلبات صيانة مطابقة</p>
+            <p className="mt-1 text-sm text-muted-foreground">حاول تغيير معايير البحث أو الفلاتر</p>
+          </div>
+        ) : (
+          filteredRequests.map((request) => {
+            const requester = getOwnerById(request.requesterId, appData.owners)
+            const priorityStyle = priorityStyles[request.priority]
+            const statusStyle = statusStyles[request.status]
+            return (
+              <button
+                key={request.id}
+                onClick={() => handleRowClick(request)}
+                className="page-shell w-full p-4 text-start transition-colors hover:bg-primary/4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-medium text-foreground">{request.title}</p>
+                  <span className={cn('status-pill shrink-0', statusStyle.badge)}>
+                    <span className={cn('h-1.5 w-1.5 rounded-full', statusStyle.dot)} />
+                    {getStatusLabel(request.status)}
+                  </span>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className={cn('status-pill', priorityStyle.badge)}>
+                    <span className={cn('h-1.5 w-1.5 rounded-full', priorityStyle.dot)} />
+                    {getPriorityLabel(request.priority)}
+                  </span>
+                  {request.requesterId === userId && (
+                    <span className="text-xs font-medium text-primary">طلبك</span>
+                  )}
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>{requester?.fullName.split(' ').slice(0, 2).join(' ') || '—'}</span>
+                  <span>·</span>
+                  <span>{formatRelativeTime(request.createdAt)}</span>
+                </div>
+              </button>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="data-table-shell hidden md:block">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/45 hover:bg-muted/45">
@@ -210,6 +282,13 @@ export default function MaintenancePage() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     حاول تغيير معايير البحث أو الفلاتر
                   </p>
+                  <button
+                    onClick={() => setNewDialogOpen(true)}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/8 px-3.5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/15"
+                  >
+                    <Plus className="h-4 w-4" />
+                    طلب صيانة جديد
+                  </button>
                 </TableCell>
               </TableRow>
             ) : (

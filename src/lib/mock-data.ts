@@ -1507,7 +1507,7 @@ export const bld003Data: BuildingDataset = {
 // Building Registry & Lookup
 // =============================================================================
 
-export const buildingRegistry: Record<string, BuildingDataset> = {
+const buildingRegistry: Record<string, BuildingDataset> = {
   'bld-001': bld001Data,
   'bld-002': bld002Data,
   'bld-003': bld003Data,
@@ -1523,21 +1523,6 @@ export function getBuildingData(id: string): BuildingDataset | undefined {
   return buildingRegistry[id]
 }
 
-// =============================================================================
-// Backward-Compatible Exports (from bld001Data)
-// =============================================================================
-
-export const building = bld001Data.building
-export const owners = bld001Data.owners
-export const units = bld001Data.units
-export const ownershipLinks = bld001Data.ownershipLinks
-export const association = bld001Data.association
-export const associationRoles = bld001Data.associationRoles
-export const decisions = bld001Data.decisions
-export const votes = bld001Data.votes
-export const maintenanceRequests = bld001Data.maintenanceRequests
-export const documents = bld001Data.documents
-export const activityLog = bld001Data.activityLog
 
 // =============================================================================
 // Helper Functions
@@ -1642,9 +1627,6 @@ export function getUserUnitIds(userId: string, links: OwnershipLink[] = bld001Da
   return links.filter((l) => l.ownerId === userId).map((l) => l.unitId)
 }
 
-export function getUserMaintenanceRequests(userId: string, requests: MaintenanceRequest[] = bld001Data.maintenanceRequests): MaintenanceRequest[] {
-  return requests.filter((r) => r.requesterId === userId)
-}
 
 export function getUserVoteForDecision(userId: string, decisionId: string, voteList: Vote[] = bld001Data.votes): Vote | undefined {
   return voteList.find((v) => v.voterId === userId && v.decisionId === decisionId)

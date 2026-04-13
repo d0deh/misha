@@ -65,8 +65,9 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
   const [finalCostDraft, setFinalCostDraft] = useState('')
   const [commentText, setCommentText] = useState('')
 
-  // Cancel confirmation
+  // Confirmation dialogs
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
+  const [confirmCompleteOpen, setConfirmCompleteOpen] = useState(false)
 
   // Sync draft values when requestId changes
   useEffect(() => {
@@ -180,6 +181,52 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                     </div>
                   </DetailSection>
 
+                  {/* Comment thread — positioned prominently */}
+                  <Separator className="bg-stone-100" />
+                  <DetailSection title="التعليقات">
+                    {selectedComments.length === 0 ? (
+                      <p className="text-sm text-stone-500">لا توجد تعليقات بعد</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {selectedComments.map((c) => {
+                          const author = getOwnerById(c.authorId, owners)
+                          return (
+                            <div key={c.id} className="rounded-lg bg-stone-50 p-3">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="text-sm font-medium text-stone-800">
+                                  {author?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
+                                </span>
+                                <span className="text-xs text-stone-500">
+                                  {formatRelativeTime(c.timestamp)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-stone-700 leading-relaxed">
+                                {c.text}
+                              </p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                    <div className="flex items-end gap-2 mt-3">
+                      <Textarea
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="أضف تعليقاً..."
+                        className="flex-1 min-h-10 border-stone-200 focus-visible:ring-teal-500"
+                      />
+                      <Button
+                        size="sm"
+                        className="bg-teal-700 text-white hover:bg-teal-800 shrink-0"
+                        disabled={!commentText.trim()}
+                        onClick={() => handleAddComment(selectedRequest.id)}
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        إرسال
+                      </Button>
+                    </div>
+                  </DetailSection>
+
                   {/* Status workflow buttons */}
                   {(selectedRequest.status === 'new' || selectedRequest.status === 'in_progress') && (
                     <>
@@ -203,7 +250,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                               tooltipText="للإدارة فقط"
                               size="sm"
                               className="bg-emerald-700 text-white hover:bg-emerald-800"
-                              onClick={() => handleComplete(selectedRequest.id)}
+                              onClick={() => setConfirmCompleteOpen(true)}
                             >
                               تم الإنجاز
                             </PermissionButton>
@@ -313,58 +360,25 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                       })}
                     />
                   </DetailSection>
-
-                  {/* Comment thread */}
-                  <Separator className="bg-stone-100" />
-                  <DetailSection title="التعليقات">
-                    {selectedComments.length === 0 ? (
-                      <p className="text-sm text-stone-500">لا توجد تعليقات بعد</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {selectedComments.map((c) => {
-                          const author = getOwnerById(c.authorId, owners)
-                          return (
-                            <div key={c.id} className="rounded-lg bg-stone-50 p-3">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <span className="text-sm font-medium text-stone-800">
-                                  {author?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
-                                </span>
-                                <span className="text-xs text-stone-500">
-                                  {formatRelativeTime(c.timestamp)}
-                                </span>
-                              </div>
-                              <p className="text-sm text-stone-700 leading-relaxed">
-                                {c.text}
-                              </p>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                    <div className="flex items-end gap-2 mt-3">
-                      <Textarea
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="أضف تعليقاً..."
-                        className="flex-1 min-h-10 border-stone-200 focus-visible:ring-teal-500"
-                      />
-                      <Button
-                        size="sm"
-                        className="bg-teal-700 text-white hover:bg-teal-800 shrink-0"
-                        disabled={!commentText.trim()}
-                        onClick={() => handleAddComment(selectedRequest.id)}
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        إرسال
-                      </Button>
-                    </div>
-                  </DetailSection>
                 </div>
               </div>
             </ScrollArea>
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Mark complete confirmation dialog */}
+      <ConfirmDialog
+        open={confirmCompleteOpen}
+        onOpenChange={setConfirmCompleteOpen}
+        title="إتمام طلب الصيانة"
+        description="هل أنت متأكد أن العمل اكتمل؟ سيتم تحديث الحالة إلى مكتمل."
+        confirmLabel="تم الإنجاز"
+        cancelLabel="تراجع"
+        onConfirm={() => {
+          if (requestId) handleComplete(requestId)
+        }}
+      />
 
       {/* Cancel confirmation dialog */}
       <ConfirmDialog
