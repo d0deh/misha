@@ -55,6 +55,17 @@ export function computeVoterWeights(
     }
   }
 
+  // If nobody is uncapped, the cap is spurious — it exists to prevent a
+  // dominant owner from overriding *other* eligible voters, and there are
+  // none. Keep raw weights. (Reachable only when a single eligible voter
+  // owns >50%, since raw percentages are shares of total building area.)
+  if (excess > 0 && uncappedTotal === 0) {
+    for (const w of weights) {
+      w.cappedPercentage = w.rawPercentage
+    }
+    return weights
+  }
+
   // Redistribute excess proportionally to uncapped voters
   for (const w of weights) {
     if (w.rawPercentage <= CAP) {
