@@ -63,7 +63,7 @@ function buildScenario(
 ) {
   const owners = ownerShares.map((o) => owner(o.id))
   const units = ownerShares.map((o) => unit(`u-${o.id}`, o.rawPct))
-  const links = ownerShares.map((o, i) =>
+  const links = ownerShares.map((o) =>
     link(`l-${o.id}`, o.id, `u-${o.id}`, 100)
   )
   const roles = ownerShares.map((o) => role(o.id, o.role ?? OWNER_ROLE))

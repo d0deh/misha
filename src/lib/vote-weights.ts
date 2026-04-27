@@ -1,5 +1,5 @@
 import type { Owner, Unit, OwnershipLink, AssociationRole } from './types'
-import { canVote } from './user-context'
+import { canVote } from './permissions'
 
 export interface VoterWeight {
   ownerId: string

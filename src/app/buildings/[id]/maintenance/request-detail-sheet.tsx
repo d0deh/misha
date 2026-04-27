@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { Send } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -29,7 +29,6 @@ import { useUser, canManageMaintenance } from '@/lib/user-context'
 import { formatRelativeTime } from '@/lib/relative-time'
 import { cn } from '@/lib/utils'
 import { DetailSection, DetailRow } from '@/components/ui/detail-section'
-import { statusStyles } from './_constants'
 
 interface RequestDetailSheetProps {
   requestId: string | null
@@ -59,25 +58,15 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
 
   const selectedComments = requestId ? appData.getComments(requestId) : []
 
-  // Draft states
-  const [vendorDraft, setVendorDraft] = useState('')
-  const [costEstimateDraft, setCostEstimateDraft] = useState('')
-  const [finalCostDraft, setFinalCostDraft] = useState('')
-  const [commentText, setCommentText] = useState('')
+  const vendorInputRef = useRef<HTMLInputElement>(null)
+  const costEstimateInputRef = useRef<HTMLInputElement>(null)
+  const finalCostInputRef = useRef<HTMLInputElement>(null)
+  const [commentDraft, setCommentDraft] = useState({ requestId: '', text: '' })
+  const commentText = commentDraft.requestId === (requestId || '') ? commentDraft.text : ''
 
   // Confirmation dialogs
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
   const [confirmCompleteOpen, setConfirmCompleteOpen] = useState(false)
-
-  // Sync draft values when requestId changes
-  useEffect(() => {
-    if (selectedRequest) {
-      setVendorDraft(selectedRequest.assignedVendor || '')
-      setCostEstimateDraft(selectedRequest.costEstimate != null ? String(selectedRequest.costEstimate) : '')
-      setFinalCostDraft(selectedRequest.finalCost != null ? String(selectedRequest.finalCost) : '')
-      setCommentText('')
-    }
-  }, [requestId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Status workflow ---
 
@@ -100,19 +89,21 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
   // --- Vendor & cost ---
 
   function handleSaveVendor(reqId: string) {
-    appData.assignVendor(reqId, vendorDraft.trim())
+    const vendor = vendorInputRef.current?.value.trim() || ''
+    if (!vendor) return
+    appData.assignVendor(reqId, vendor)
     toast('تم حفظ المقاول')
   }
 
   function handleSaveCostEstimate(reqId: string) {
-    const val = parseFloat(costEstimateDraft)
+    const val = parseFloat(costEstimateInputRef.current?.value || '')
     if (isNaN(val)) return
     appData.updateCosts(reqId, { costEstimate: val })
     toast('تم حفظ التكلفة المقدرة')
   }
 
   function handleSaveFinalCost(reqId: string) {
-    const val = parseFloat(finalCostDraft)
+    const val = parseFloat(finalCostInputRef.current?.value || '')
     if (isNaN(val)) return
     appData.updateCosts(reqId, { finalCost: val })
     toast('تم حفظ التكلفة النهائية')
@@ -124,7 +115,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
     if (!commentText.trim()) return
     appData.addComment(reqId, userId, commentText.trim())
     toast('تم إضافة التعليق')
-    setCommentText('')
+    setCommentDraft({ requestId: reqId, text: '' })
   }
 
   return (
@@ -134,12 +125,12 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
           {selectedRequest && (
             <ScrollArea className="h-full">
               <div className="flex flex-col">
-                <div className="bg-shell p-5 pe-12 text-white">
+                <div className="bg-shell p-5 pe-12 text-shell-foreground">
                   <SheetHeader className="p-0">
                     <SheetDescription className="text-shell-muted text-xs">
                       بيانات طلب الصيانة
                     </SheetDescription>
-                    <SheetTitle className="text-white text-lg font-bold">
+                    <SheetTitle className="text-lg font-semibold text-shell-foreground">
                       {selectedRequest.title}
                     </SheetTitle>
                   </SheetHeader>
@@ -148,13 +139,13 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                       className={cn(
                         'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium border-white/20',
                         selectedRequest.priority === 'urgent' || selectedRequest.priority === 'high'
-                          ? 'bg-red-500/20 text-red-200'
-                          : 'bg-white/10 text-white/70'
+                          ? 'bg-destructive/15 text-destructive-foreground'
+                          : 'bg-white/10 text-shell-muted'
                       )}
                     >
                       {getPriorityLabel(selectedRequest.priority)}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white/70">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-medium text-shell-muted">
                       {getStatusLabel(selectedRequest.status)}
                     </span>
                   </div>
@@ -174,33 +165,33 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                       value={selectedRequester?.fullName || '—'}
                     />
                     <div>
-                      <p className="text-sm text-slate-600 mb-1">الوصف</p>
-                      <p className="text-base text-slate-700 leading-relaxed">
+                      <p className="mb-1 text-sm text-muted-foreground">الوصف</p>
+                      <p className="text-base leading-relaxed text-foreground/85">
                         {selectedRequest.description}
                       </p>
                     </div>
                   </DetailSection>
 
                   {/* Comment thread — positioned prominently */}
-                  <Separator className="bg-slate-100" />
+                  <Separator className="bg-border" />
                   <DetailSection title="التعليقات">
                     {selectedComments.length === 0 ? (
-                      <p className="text-sm text-slate-500">لا توجد تعليقات بعد</p>
+                      <p className="text-sm text-muted-foreground">لا توجد تعليقات بعد</p>
                     ) : (
                       <div className="space-y-3">
                         {selectedComments.map((c) => {
                           const author = getOwnerById(c.authorId, owners)
                           return (
-                            <div key={c.id} className="rounded-lg bg-slate-50 p-3">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <span className="text-sm font-medium text-slate-800">
+                            <div key={c.id} className="rounded-xl border border-border/70 bg-muted/40 p-3">
+                              <div className="mb-1 flex items-center justify-between gap-2">
+                                <span className="text-sm font-medium text-foreground">
                                   {author?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
                                 </span>
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-muted-foreground">
                                   {formatRelativeTime(c.timestamp)}
                                 </span>
                               </div>
-                              <p className="text-sm text-slate-700 leading-relaxed">
+                              <p className="text-sm leading-relaxed text-foreground/85">
                                 {c.text}
                               </p>
                             </div>
@@ -211,9 +202,11 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                     <div className="flex items-end gap-2 mt-3">
                       <Textarea
                         value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
+                        onChange={(e) =>
+                          setCommentDraft({ requestId: selectedRequest.id, text: e.target.value })
+                        }
                         placeholder="أضف تعليقاً..."
-                        className="flex-1 min-h-10 border-slate-200 focus-visible:ring-ring"
+                        className="min-h-10 flex-1 border-border focus-visible:ring-ring"
                       />
                       <Button
                         size="sm"
@@ -230,7 +223,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   {/* Status workflow buttons */}
                   {(selectedRequest.status === 'new' || selectedRequest.status === 'in_progress') && (
                     <>
-                      <Separator className="bg-slate-100" />
+                      <Separator className="bg-border" />
                       <DetailSection title="إجراءات">
                         <div className="flex flex-wrap gap-2">
                           {selectedRequest.status === 'new' && (
@@ -272,43 +265,47 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   {/* Vendor & cost fields (management only) */}
                   {showManagement && (
                     <>
-                      <Separator className="bg-slate-100" />
+                      <Separator className="bg-border" />
                       <DetailSection title="التنفيذ">
                         <div className="space-y-3">
                           <div>
-                            <Label className="text-sm text-slate-600 mb-1">المقاول</Label>
+                            <Label className="mb-1 text-sm text-muted-foreground">المقاول</Label>
                             <div className="flex items-center gap-2">
                               <Input
-                                value={vendorDraft}
-                                onChange={(e) => setVendorDraft(e.target.value)}
+                                key={`vendor-${selectedRequest.id}`}
+                                ref={vendorInputRef}
+                                defaultValue={selectedRequest.assignedVendor || ''}
                                 placeholder="اسم المقاول"
-                                className="flex-1 border-slate-200 focus-visible:ring-ring"
+                                className="flex-1 border-border focus-visible:ring-ring"
                               />
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleSaveVendor(selectedRequest.id)}
-                                disabled={!vendorDraft.trim()}
                               >
                                 حفظ
                               </Button>
                             </div>
                           </div>
                           <div>
-                            <Label className="text-sm text-slate-600 mb-1">التكلفة المقدرة (ريال)</Label>
+                            <Label className="mb-1 text-sm text-muted-foreground">التكلفة المقدرة (ريال)</Label>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
-                                value={costEstimateDraft}
-                                onChange={(e) => setCostEstimateDraft(e.target.value)}
+                                key={`estimate-${selectedRequest.id}`}
+                                ref={costEstimateInputRef}
+                                defaultValue={
+                                  selectedRequest.costEstimate != null
+                                    ? String(selectedRequest.costEstimate)
+                                    : ''
+                                }
                                 placeholder="0"
-                                className="flex-1 border-slate-200 focus-visible:ring-ring"
+                                className="flex-1 border-border focus-visible:ring-ring"
                               />
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleSaveCostEstimate(selectedRequest.id)}
-                                disabled={!costEstimateDraft}
                               >
                                 حفظ
                               </Button>
@@ -316,20 +313,24 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                           </div>
                           {selectedRequest.status === 'completed' && (
                             <div>
-                              <Label className="text-sm text-slate-600 mb-1">التكلفة النهائية (ريال)</Label>
+                              <Label className="mb-1 text-sm text-muted-foreground">التكلفة النهائية (ريال)</Label>
                               <div className="flex items-center gap-2">
                                 <Input
                                   type="number"
-                                  value={finalCostDraft}
-                                  onChange={(e) => setFinalCostDraft(e.target.value)}
+                                  key={`final-cost-${selectedRequest.id}`}
+                                  ref={finalCostInputRef}
+                                  defaultValue={
+                                    selectedRequest.finalCost != null
+                                      ? String(selectedRequest.finalCost)
+                                      : ''
+                                  }
                                   placeholder="0"
-                                  className="flex-1 border-slate-200 focus-visible:ring-ring"
+                                  className="flex-1 border-border focus-visible:ring-ring"
                                 />
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleSaveFinalCost(selectedRequest.id)}
-                                  disabled={!finalCostDraft}
                                 >
                                   حفظ
                                 </Button>
@@ -341,7 +342,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                     </>
                   )}
 
-                  <Separator className="bg-slate-100" />
+                  <Separator className="bg-border" />
                   <DetailSection title="التواريخ">
                     <DetailRow
                       label="تاريخ الإنشاء"

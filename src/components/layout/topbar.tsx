@@ -164,13 +164,6 @@ export function Topbar({ buildingId }: { buildingId: string }) {
   const moreHasBadge = moreNav.some((item) => (badgeCounts[item.href] || 0) > 0)
   const moreIsActive = moreNav.some((item) => pathname.startsWith(item.href))
 
-  const activeItem =
-    visibleNav.find((item) =>
-      item.href === `/buildings/${buildingId}`
-        ? pathname === item.href
-        : pathname.startsWith(item.href)
-    ) || visibleNav[0]
-
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-black/8 bg-shell text-shell-foreground shadow-[0_12px_36px_rgba(15,23,42,0.16)]">
@@ -197,7 +190,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                     <TooltipContent
                       side="bottom"
                       align="end"
-                      className="max-w-[min(80vw,28rem)] whitespace-normal bg-slate-900 text-slate-50"
+                      className="max-w-[min(80vw,28rem)] whitespace-normal bg-foreground text-background"
                     >
                       {buildingData?.building.name || 'مِشاع'}
                     </TooltipContent>

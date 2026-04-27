@@ -1,14 +1,14 @@
 export const categoryBadge: Record<string, string> = {
   financial: 'border-warning/20 bg-warning/10 text-warning',
   maintenance: 'border-primary/20 bg-primary/10 text-primary',
-  governance: 'border-violet-200 bg-violet-50 text-violet-700',
+  governance: 'border-info/20 bg-info/10 text-info',
   general: 'border-border bg-muted text-muted-foreground',
 }
 
 export const categoryBorder: Record<string, string> = {
   financial: 'border-s-warning',
   maintenance: 'border-s-primary',
-  governance: 'border-s-violet-400',
+  governance: 'border-s-info',
   general: 'border-s-border',
 }
 

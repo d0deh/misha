@@ -2,33 +2,40 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
 } from 'react'
 import type {
-  Building,
-  Decision,
-  Vote,
-  MaintenanceRequest,
-  Document,
   ActivityLog,
-  MaintenanceComment,
-  Owner,
-  Unit,
-  OwnershipLink,
   Association,
   AssociationRole,
+  AssociationRoleType,
+  Building,
+  Decision,
+  Document,
   Fee,
+  MaintenanceComment,
+  MaintenanceRequest,
+  Owner,
+  OwnershipLink,
+  Unit,
+  Vote,
 } from '@/lib/types'
 import {
   getBuildingData,
   getOwnerById as lookupOwner,
   type BuildingDataset,
 } from '@/lib/mock-data'
-import { canVote } from '@/lib/user-context'
+import {
+  canCreateDecision,
+  canManageAssociation,
+  canManageMaintenance,
+  canUploadDocuments,
+  canVote,
+} from '@/lib/permissions'
 import { computeVoterWeights, computeWeightedResult, type VoterWeight } from '@/lib/vote-weights'
 
 interface AppDataContextType {
@@ -47,24 +54,28 @@ interface AppDataContextType {
   fees: Fee[]
   voterWeights: VoterWeight[]
 
-  // Queries
   getDecisionVotes: (decisionId: string) => Vote[]
   getUserVoteForDecision: (userId: string, decisionId: string) => Vote | undefined
   getDecisionsAwaitingVote: (userId: string) => Decision[]
   getComments: (requestId: string) => MaintenanceComment[]
 
-  // Mutations
-  addDecision: (d: Omit<Decision, 'id' | 'createdAt' | 'status'>, actorId: string) => void
+  addDecision: (decision: Omit<Decision, 'id' | 'createdAt' | 'status'>, actorId: string) => void
   addVote: (decisionId: string, voterId: string, option: Vote['option'], actorName: string) => void
   changeVote: (decisionId: string, voterId: string, newOption: Vote['option']) => void
   closeDecision: (decisionId: string, actorId: string) => void
-  addMaintenanceRequest: (r: Omit<MaintenanceRequest, 'id' | 'createdAt' | 'updatedAt' | 'status'>, actorId: string) => void
-  updateRequestStatus: (reqId: string, status: MaintenanceRequest['status'], actorId: string) => void
-  assignVendor: (reqId: string, vendor: string) => void
-  updateCosts: (reqId: string, costs: { costEstimate?: number; finalCost?: number }) => void
-  addComment: (reqId: string, authorId: string, text: string) => void
-  addDocument: (d: Omit<Document, 'id' | 'createdAt'>, actorId: string) => void
-  updateBuilding: (updates: Partial<Pick<Building, 'name' | 'nationalAddress' | 'totalArea' | 'commonAreas'>>, actorId: string) => void
+  addMaintenanceRequest: (
+    request: Omit<MaintenanceRequest, 'id' | 'createdAt' | 'updatedAt' | 'status'>,
+    actorId: string
+  ) => void
+  updateRequestStatus: (requestId: string, status: MaintenanceRequest['status'], actorId: string) => void
+  assignVendor: (requestId: string, vendor: string) => void
+  updateCosts: (requestId: string, costs: { costEstimate?: number; finalCost?: number }) => void
+  addComment: (requestId: string, authorId: string, text: string) => void
+  addDocument: (document: Omit<Document, 'id' | 'createdAt'>, actorId: string) => void
+  updateBuilding: (
+    updates: Partial<Pick<Building, 'name' | 'nationalAddress' | 'totalArea' | 'commonAreas'>>,
+    actorId: string
+  ) => void
 }
 
 const AppDataContext = createContext<AppDataContextType | null>(null)
@@ -73,268 +84,349 @@ function now() {
   return new Date().toISOString()
 }
 
+function numericIdSuffix(id: string) {
+  return Number(id.match(/-(\d+)$/)?.[1] || 0)
+}
+
+function getInitialCounter(data: BuildingDataset) {
+  const ids = [
+    data.building.id,
+    data.association.id,
+    ...data.owners.map((owner) => owner.id),
+    ...data.units.map((unit) => unit.id),
+    ...data.ownershipLinks.map((link) => link.id),
+    ...data.associationRoles.map((role) => role.id),
+    ...data.decisions.map((decision) => decision.id),
+    ...data.votes.map((vote) => vote.id),
+    ...data.maintenanceRequests.map((request) => request.id),
+    ...data.documents.map((document) => document.id),
+    ...data.activityLog.map((entry) => entry.id),
+    ...(data.fees || []).map((fee) => fee.id),
+  ]
+
+  return Math.max(200, ...ids.map(numericIdSuffix))
+}
+
 export function AppDataProvider({ buildingId, children }: { buildingId: string; children: ReactNode }) {
-  const data = getBuildingData(buildingId)!
-  const counter = useRef(200)
+  const buildingData = getBuildingData(buildingId)
+
+  if (!buildingData) {
+    throw new Error(`Unknown building id: ${buildingId}`)
+  }
+
+  const data = buildingData
+  const counter = useRef(getInitialCounter(data))
   const nextId = (prefix: string) => `${prefix}-${++counter.current}`
 
-  // Compute area-based vote weights per Article 18.6
-  const voterWeights = computeVoterWeights(
-    data.owners, data.units, data.ownershipLinks, data.associationRoles
+  const voterWeights = useMemo(
+    () =>
+      computeVoterWeights(
+        data.owners,
+        data.units,
+        data.ownershipLinks,
+        data.associationRoles
+      ),
+    [data.associationRoles, data.owners, data.ownershipLinks, data.units]
   )
   const eligibleVoterCount = voterWeights.length
 
   const [building, setBuilding] = useState<Building>({ ...data.building })
   const [decisions, setDecisions] = useState<Decision[]>([...data.decisions])
   const [votes, setVotes] = useState<Vote[]>([...data.votes])
-  const [maintenanceRequests, setMaintenance] = useState<MaintenanceRequest[]>([...data.maintenanceRequests])
+  const [maintenanceRequests, setMaintenance] = useState<MaintenanceRequest[]>([
+    ...data.maintenanceRequests,
+  ])
   const [documents, setDocuments] = useState<Document[]>([...data.documents])
   const [activityLog, setActivity] = useState<ActivityLog[]>([...data.activityLog])
   const [comments, setComments] = useState<Record<string, MaintenanceComment[]>>({})
 
-  const getOwnerById = (id: string) => lookupOwner(id, data.owners)
+  function getOwnerById(id: string) {
+    return lookupOwner(id, data.owners)
+  }
 
-  const addActivity = useCallback((entry: Omit<ActivityLog, 'id' | 'timestamp'>) => {
+  function getActorRole(actorId: string): AssociationRoleType | undefined {
+    return data.associationRoles.find((role) => role.userId === actorId)?.role
+  }
+
+  function actorCan(actorId: string, check: (role: AssociationRoleType) => boolean) {
+    const role = getActorRole(actorId)
+    return role ? check(role) : false
+  }
+
+  function addActivity(entry: Omit<ActivityLog, 'id' | 'timestamp'>) {
     setActivity((prev) => [
       { ...entry, id: `act-${++counter.current}`, timestamp: now() },
       ...prev,
     ])
-  }, [])
+  }
 
-  // --- Queries ---
+  function getDecisionVotes(decisionId: string) {
+    return votes.filter((vote) => vote.decisionId === decisionId)
+  }
 
-  const getDecisionVotes = useCallback(
-    (decisionId: string) => votes.filter((v) => v.decisionId === decisionId),
-    [votes]
-  )
+  function getUserVoteForDecision(userId: string, decisionId: string) {
+    return votes.find((vote) => vote.voterId === userId && vote.decisionId === decisionId)
+  }
 
-  const getUserVoteForDecision = useCallback(
-    (userId: string, decisionId: string) =>
-      votes.find((v) => v.voterId === userId && v.decisionId === decisionId),
-    [votes]
-  )
+  function getDecisionsAwaitingVote(userId: string) {
+    return decisions.filter(
+      (decision) =>
+        decision.status === 'open' &&
+        !votes.some((vote) => vote.voterId === userId && vote.decisionId === decision.id)
+    )
+  }
 
-  const getDecisionsAwaitingVote = useCallback(
-    (userId: string) =>
-      decisions.filter(
-        (d) => d.status === 'open' && !votes.some((v) => v.voterId === userId && v.decisionId === d.id)
-      ),
-    [decisions, votes]
-  )
+  function getComments(requestId: string) {
+    return comments[requestId] || []
+  }
 
-  const getComments = useCallback(
-    (requestId: string) => comments[requestId] || [],
-    [comments]
-  )
+  function computeResult(decisionId: string, allVotes: Vote[]) {
+    const decisionVotes = allVotes.filter((vote) => vote.decisionId === decisionId)
+    const weighted = computeWeightedResult(decisionVotes, voterWeights)
+    return {
+      status: weighted.status as Decision['status'],
+      result: weighted.resultText,
+    }
+  }
 
-  // --- Decision Mutations ---
+  function addDecision(
+    decision: Omit<Decision, 'id' | 'createdAt' | 'status'>,
+    actorId: string
+  ) {
+    if (!actorCan(actorId, canCreateDecision)) return
 
-  const addDecision = useCallback(
-    (d: Omit<Decision, 'id' | 'createdAt' | 'status'>, actorId: string) => {
-      const newDec: Decision = { ...d, id: nextId('dec'), status: 'open', createdAt: now() }
-      setDecisions((prev) => [newDec, ...prev])
-      const actor = getOwnerById(actorId)
-      addActivity({
-        actorId,
-        action: 'create',
-        entityType: 'decision',
-        entityId: newDec.id,
-        descriptionAr: `أنشأ ${actor?.fullName || ''} قرار جديد: ${d.title}`,
-      })
-    },
-    [addActivity]
-  )
+    const newDecision: Decision = {
+      ...decision,
+      id: nextId('dec'),
+      status: 'open',
+      createdAt: now(),
+    }
+    setDecisions((prev) => [newDecision, ...prev])
 
-  const computeResult = useCallback(
-    (decisionId: string, allVotes: Vote[]) => {
-      const dVotes = allVotes.filter((v) => v.decisionId === decisionId)
-      const weighted = computeWeightedResult(dVotes, voterWeights)
-      return {
-        status: weighted.status as Decision['status'],
-        result: weighted.resultText,
+    const actor = getOwnerById(actorId)
+    addActivity({
+      actorId,
+      action: 'create',
+      entityType: 'decision',
+      entityId: newDecision.id,
+      descriptionAr: `أنشأ ${actor?.fullName || ''} قرار جديد: ${decision.title}`,
+    })
+  }
+
+  function addVote(
+    decisionId: string,
+    voterId: string,
+    option: Vote['option'],
+    actorName: string
+  ) {
+    const decision = decisions.find((item) => item.id === decisionId)
+    if (!decision || decision.status !== 'open') return
+    if (!actorCan(voterId, canVote)) return
+    if (votes.some((vote) => vote.decisionId === decisionId && vote.voterId === voterId)) return
+
+    const newVote: Vote = {
+      id: nextId('v'),
+      decisionId,
+      voterId,
+      option,
+      timestamp: now(),
+    }
+
+    setVotes((prev) => {
+      if (prev.some((vote) => vote.decisionId === decisionId && vote.voterId === voterId)) {
+        return prev
       }
-    },
-    [voterWeights]
-  )
 
-  const addVote = useCallback(
-    (decisionId: string, voterId: string, option: Vote['option'], actorName: string) => {
-      const newVote: Vote = { id: nextId('v'), decisionId, voterId, option, timestamp: now() }
+      const updated = [...prev, newVote]
+      const votersForDecision = new Set(
+        updated.filter((vote) => vote.decisionId === decisionId).map((vote) => vote.voterId)
+      )
 
-      setVotes((prev) => {
-        const updated = [...prev, newVote]
-
-        // Check if all eligible voters have voted
-        const decisionVoteCount = updated.filter((v) => v.decisionId === decisionId).length
-        if (decisionVoteCount >= eligibleVoterCount) {
-          const { status, result } = computeResult(decisionId, updated)
-          setDecisions((dPrev) =>
-            dPrev.map((d) => (d.id === decisionId ? { ...d, status, result } : d))
+      if (votersForDecision.size >= eligibleVoterCount) {
+        const { status, result } = computeResult(decisionId, updated)
+        setDecisions((prevDecisions) =>
+          prevDecisions.map((item) =>
+            item.id === decisionId ? { ...item, status, result } : item
           )
-        }
-        return updated
-      })
-
-      const optionLabels: Record<string, string> = { approve: 'بالموافقة', reject: 'بالرفض', abstain: 'بالامتناع' }
-      const decision = decisions.find((d) => d.id === decisionId)
-      addActivity({
-        actorId: voterId,
-        action: 'vote',
-        entityType: 'decision',
-        entityId: decisionId,
-        descriptionAr: `صوّت ${actorName} ${optionLabels[option]} على: ${decision?.title || ''}`,
-      })
-    },
-    [decisions, addActivity, computeResult]
-  )
-
-  const changeVote = useCallback(
-    (decisionId: string, voterId: string, newOption: Vote['option']) => {
-      setVotes((prev) =>
-        prev.map((v) =>
-          v.decisionId === decisionId && v.voterId === voterId
-            ? { ...v, option: newOption, timestamp: now() }
-            : v
         )
-      )
-    },
-    []
-  )
-
-  const closeDecision = useCallback(
-    (decisionId: string, actorId: string) => {
-      setVotes((currentVotes) => {
-        const { status, result } = computeResult(decisionId, currentVotes)
-        setDecisions((prev) =>
-          prev.map((d) => (d.id === decisionId ? { ...d, status, result } : d))
-        )
-        return currentVotes
-      })
-
-      const actor = getOwnerById(actorId)
-      const decision = decisions.find((d) => d.id === decisionId)
-      addActivity({
-        actorId,
-        action: 'update',
-        entityType: 'decision',
-        entityId: decisionId,
-        descriptionAr: `أغلق ${actor?.fullName || ''} التصويت على: ${decision?.title || ''}`,
-      })
-    },
-    [decisions, addActivity, computeResult]
-  )
-
-  // --- Maintenance Mutations ---
-
-  const addMaintenanceRequest = useCallback(
-    (r: Omit<MaintenanceRequest, 'id' | 'createdAt' | 'updatedAt' | 'status'>, actorId: string) => {
-      const ts = now()
-      const newReq: MaintenanceRequest = { ...r, id: nextId('mnt'), status: 'new', createdAt: ts, updatedAt: ts }
-      setMaintenance((prev) => [newReq, ...prev])
-      const actor = getOwnerById(actorId)
-      addActivity({
-        actorId,
-        action: 'create',
-        entityType: 'maintenance',
-        entityId: newReq.id,
-        descriptionAr: `أنشأ ${actor?.fullName || ''} طلب صيانة: ${r.title}`,
-      })
-    },
-    [addActivity]
-  )
-
-  const updateRequestStatus = useCallback(
-    (reqId: string, status: MaintenanceRequest['status'], actorId: string) => {
-      setMaintenance((prev) =>
-        prev.map((r) => (r.id === reqId ? { ...r, status, updatedAt: now() } : r))
-      )
-      const actor = getOwnerById(actorId)
-      const req = maintenanceRequests.find((r) => r.id === reqId)
-      const statusLabels: Record<string, string> = {
-        in_progress: 'بدأ التنفيذ',
-        completed: 'اكتمل',
-        cancelled: 'تم إلغاء',
       }
-      addActivity({
-        actorId,
-        action: 'update',
-        entityType: 'maintenance',
-        entityId: reqId,
-        descriptionAr: `${statusLabels[status] || status} طلب الصيانة: ${req?.title || ''}`,
-      })
-    },
-    [maintenanceRequests, addActivity]
-  )
 
-  const assignVendor = useCallback(
-    (reqId: string, vendor: string) => {
-      setMaintenance((prev) =>
-        prev.map((r) => (r.id === reqId ? { ...r, assignedVendor: vendor, updatedAt: now() } : r))
+      return updated
+    })
+
+    const optionLabels: Record<Vote['option'], string> = {
+      approve: 'بالموافقة',
+      reject: 'بالرفض',
+      abstain: 'بالامتناع',
+    }
+    addActivity({
+      actorId: voterId,
+      action: 'vote',
+      entityType: 'decision',
+      entityId: decisionId,
+      descriptionAr: `صوّت ${actorName} ${optionLabels[option]} على: ${decision.title}`,
+    })
+  }
+
+  function changeVote(decisionId: string, voterId: string, newOption: Vote['option']) {
+    const decision = decisions.find((item) => item.id === decisionId)
+    if (!decision || decision.status !== 'open') return
+
+    setVotes((prev) =>
+      prev.map((vote) =>
+        vote.decisionId === decisionId && vote.voterId === voterId
+          ? { ...vote, option: newOption, timestamp: now() }
+          : vote
       )
-    },
-    []
-  )
+    )
+  }
 
-  const updateCosts = useCallback(
-    (reqId: string, costs: { costEstimate?: number; finalCost?: number }) => {
-      setMaintenance((prev) =>
-        prev.map((r) => (r.id === reqId ? { ...r, ...costs, updatedAt: now() } : r))
+  function closeDecision(decisionId: string, actorId: string) {
+    if (!actorCan(actorId, canCreateDecision)) return
+
+    const decision = decisions.find((item) => item.id === decisionId)
+    if (!decision || decision.status !== 'open') return
+
+    setVotes((currentVotes) => {
+      const { status, result } = computeResult(decisionId, currentVotes)
+      setDecisions((prev) =>
+        prev.map((item) => (item.id === decisionId ? { ...item, status, result } : item))
       )
-    },
-    []
-  )
+      return currentVotes
+    })
 
-  const addComment = useCallback(
-    (reqId: string, authorId: string, text: string) => {
-      const comment: MaintenanceComment = {
-        id: nextId('cmt'),
-        requestId: reqId,
-        authorId,
-        text,
-        timestamp: now(),
-      }
-      setComments((prev) => ({
-        ...prev,
-        [reqId]: [...(prev[reqId] || []), comment],
-      }))
-    },
-    []
-  )
+    const actor = getOwnerById(actorId)
+    addActivity({
+      actorId,
+      action: 'update',
+      entityType: 'decision',
+      entityId: decisionId,
+      descriptionAr: `أغلق ${actor?.fullName || ''} التصويت على: ${decision.title}`,
+    })
+  }
 
-  // --- Document Mutations ---
+  function addMaintenanceRequest(
+    request: Omit<MaintenanceRequest, 'id' | 'createdAt' | 'updatedAt' | 'status'>,
+    actorId: string
+  ) {
+    const timestamp = now()
+    const newRequest: MaintenanceRequest = {
+      ...request,
+      id: nextId('mnt'),
+      status: 'new',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }
+    setMaintenance((prev) => [newRequest, ...prev])
 
-  const addDocument = useCallback(
-    (d: Omit<Document, 'id' | 'createdAt'>, actorId: string) => {
-      const newDoc: Document = { ...d, id: nextId('doc'), createdAt: now() }
-      setDocuments((prev) => [newDoc, ...prev])
-      const actor = getOwnerById(actorId)
-      addActivity({
-        actorId,
-        action: 'upload',
-        entityType: 'document',
-        entityId: newDoc.id,
-        descriptionAr: `رفع ${actor?.fullName || ''} مستند: ${d.title}`,
-      })
-    },
-    [addActivity]
-  )
+    const actor = getOwnerById(actorId)
+    addActivity({
+      actorId,
+      action: 'create',
+      entityType: 'maintenance',
+      entityId: newRequest.id,
+      descriptionAr: `أنشأ ${actor?.fullName || ''} طلب صيانة: ${request.title}`,
+    })
+  }
 
-  // --- Building Mutation ---
+  function updateRequestStatus(
+    requestId: string,
+    status: MaintenanceRequest['status'],
+    actorId: string
+  ) {
+    if (!actorCan(actorId, canManageMaintenance)) return
 
-  const updateBuilding = useCallback(
-    (updates: Partial<Pick<Building, 'name' | 'nationalAddress' | 'totalArea' | 'commonAreas'>>, actorId: string) => {
-      setBuilding((prev) => ({ ...prev, ...updates }))
-      const actor = getOwnerById(actorId)
-      addActivity({
-        actorId,
-        action: 'update',
-        entityType: 'building',
-        entityId: building.id,
-        descriptionAr: `حدّث ${actor?.fullName || ''} بيانات المبنى`,
-      })
-    },
-    [building.id, addActivity]
-  )
+    const request = maintenanceRequests.find((item) => item.id === requestId)
+    if (!request) return
+
+    setMaintenance((prev) =>
+      prev.map((item) =>
+        item.id === requestId ? { ...item, status, updatedAt: now() } : item
+      )
+    )
+
+    const statusLabels: Partial<Record<MaintenanceRequest['status'], string>> = {
+      in_progress: 'بدأ التنفيذ',
+      completed: 'اكتمل',
+      cancelled: 'تم إلغاء',
+    }
+    addActivity({
+      actorId,
+      action: 'update',
+      entityType: 'maintenance',
+      entityId: requestId,
+      descriptionAr: `${statusLabels[status] || status} طلب الصيانة: ${request.title}`,
+    })
+  }
+
+  function assignVendor(requestId: string, vendor: string) {
+    setMaintenance((prev) =>
+      prev.map((request) =>
+        request.id === requestId ? { ...request, assignedVendor: vendor, updatedAt: now() } : request
+      )
+    )
+  }
+
+  function updateCosts(requestId: string, costs: { costEstimate?: number; finalCost?: number }) {
+    setMaintenance((prev) =>
+      prev.map((request) =>
+        request.id === requestId ? { ...request, ...costs, updatedAt: now() } : request
+      )
+    )
+  }
+
+  function addComment(requestId: string, authorId: string, text: string) {
+    const comment: MaintenanceComment = {
+      id: nextId('cmt'),
+      requestId,
+      authorId,
+      text,
+      timestamp: now(),
+    }
+
+    setComments((prev) => ({
+      ...prev,
+      [requestId]: [...(prev[requestId] || []), comment],
+    }))
+  }
+
+  function addDocument(document: Omit<Document, 'id' | 'createdAt'>, actorId: string) {
+    if (!actorCan(actorId, canUploadDocuments)) return
+
+    const newDocument: Document = {
+      ...document,
+      id: nextId('doc'),
+      createdAt: now(),
+    }
+    setDocuments((prev) => [newDocument, ...prev])
+
+    const actor = getOwnerById(actorId)
+    addActivity({
+      actorId,
+      action: 'upload',
+      entityType: 'document',
+      entityId: newDocument.id,
+      descriptionAr: `رفع ${actor?.fullName || ''} مستند: ${document.title}`,
+    })
+  }
+
+  function updateBuilding(
+    updates: Partial<Pick<Building, 'name' | 'nationalAddress' | 'totalArea' | 'commonAreas'>>,
+    actorId: string
+  ) {
+    if (!actorCan(actorId, canManageAssociation)) return
+
+    setBuilding((prev) => ({ ...prev, ...updates }))
+
+    const actor = getOwnerById(actorId)
+    addActivity({
+      actorId,
+      action: 'update',
+      entityType: 'building',
+      entityId: building.id,
+      descriptionAr: `حدّث ${actor?.fullName || ''} بيانات المبنى`,
+    })
+  }
 
   return (
     <AppDataContext.Provider

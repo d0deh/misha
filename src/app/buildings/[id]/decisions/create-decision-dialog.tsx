@@ -97,7 +97,7 @@ export function CreateDecisionDialog({ open, onOpenChange }: CreateDecisionDialo
               placeholder="مثال: اعتماد ميزانية الصيانة"
             />
             {formErrors.title && (
-              <p className="text-xs text-red-600">هذا الحقل مطلوب</p>
+              <p className="text-xs text-destructive">هذا الحقل مطلوب</p>
             )}
           </div>
 
@@ -115,7 +115,7 @@ export function CreateDecisionDialog({ open, onOpenChange }: CreateDecisionDialo
               rows={3}
             />
             {formErrors.description && (
-              <p className="text-xs text-red-600">هذا الحقل مطلوب</p>
+              <p className="text-xs text-destructive">هذا الحقل مطلوب</p>
             )}
           </div>
 

@@ -39,8 +39,13 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
   const { decisions, getDecisionVotes, getUserVoteForDecision, owners, voterWeights } = appData
 
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false)
-  const [pendingVote, setPendingVote] = useState<'approve' | 'reject' | 'abstain' | null>(null)
+  const [pendingVoteState, setPendingVoteState] = useState<{
+    decisionId: string
+    option: 'approve' | 'reject' | 'abstain'
+  } | null>(null)
   const pendingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingVote =
+    open && pendingVoteState?.decisionId === decisionId ? pendingVoteState.option : null
 
   const selectedDecision = decisions.find((d) => d.id === decisionId)
   const selectedVotes = selectedDecision
@@ -59,16 +64,10 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
     }
   }, [])
 
-  // Reset pending vote when sheet closes or decision changes
-  useEffect(() => {
-    setPendingVote(null)
-    if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
-  }, [decisionId, open])
-
   function confirmVote(option: 'approve' | 'reject' | 'abstain') {
     if (!decisionId) return
     if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
-    setPendingVote(null)
+    setPendingVoteState(null)
 
     const existingVote = getUserVoteForDecision(userId, decisionId)
     if (existingVote) {
@@ -87,8 +86,9 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
       return
     }
     if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
-    setPendingVote(option)
-    pendingTimeout.current = setTimeout(() => setPendingVote(null), 5000)
+    if (!decisionId) return
+    setPendingVoteState({ decisionId, option })
+    pendingTimeout.current = setTimeout(() => setPendingVoteState(null), 5000)
   }
 
   function handleCloseDecision() {
@@ -150,7 +150,7 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                   onClick={(e) => {
                     e.stopPropagation()
                     if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
-                    setPendingVote(null)
+                    setPendingVoteState(null)
                   }}
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
@@ -166,7 +166,16 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            if (pendingTimeout.current) clearTimeout(pendingTimeout.current)
+            setPendingVoteState(null)
+          }
+          onOpenChange(nextOpen)
+        }}
+      >
         <SheetContent side="left" className="w-full sm:max-w-md overflow-hidden p-0">
           {selectedDecision && (
             <ScrollArea className="h-full">
@@ -197,8 +206,8 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                         selectedDecision.status === 'approved'
                           ? 'bg-emerald-500/20 text-emerald-200'
                           : selectedDecision.status === 'rejected'
-                          ? 'bg-red-500/20 text-red-200'
-                          : 'bg-white/10 text-white/70'
+                          ? 'bg-destructive/18 text-destructive-foreground'
+                          : 'bg-white/10 text-shell-muted'
                       )}
                     >
                       {getStatusLabel(selectedDecision.status)}
@@ -208,12 +217,12 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
 
                 <div className="p-5 space-y-5">
                   <DetailSection title="الوصف">
-                    <p className="text-base text-slate-700 leading-relaxed">
+                    <p className="text-base leading-relaxed text-foreground/85">
                       {selectedDecision.description}
                     </p>
                   </DetailSection>
 
-                  <Separator className="bg-slate-100" />
+                  <Separator className="bg-border" />
 
                   {/* Vote buttons in sheet — full-width */}
                   {userCanVote && selectedDecision.status === 'open' && (
@@ -221,13 +230,13 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                       <DetailSection title="صوّت الآن">
                         {renderVoteButtons()}
                       </DetailSection>
-                      <Separator className="bg-slate-100" />
+                      <Separator className="bg-border" />
                     </>
                   )}
 
                   <DetailSection title="التصويت">
                     {selectedVotes.length === 0 ? (
-                      <p className="text-sm text-slate-600">لم يصوّت أحد بعد</p>
+                      <p className="text-sm text-muted-foreground">لم يصوّت أحد بعد</p>
                     ) : (
                       <div className="space-y-2">
                         {selectedVotes.map((vote) => {
@@ -242,11 +251,11 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                                 isMe && 'bg-primary/5 -mx-2 px-2 rounded'
                               )}
                             >
-                              <span className="text-sm text-slate-700 flex-1">
+                              <span className="flex-1 text-sm text-foreground/85">
                                 {voter?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'}
                                 {isMe && <span className="text-xs text-primary ms-1">(أنت)</span>}
                               </span>
-                              <span className="text-xs text-slate-500 tabular-nums">{Math.round(getVoterWeight(vote.voterId, voterWeights) * 10) / 10}٪</span>
+                              <span className="text-xs tabular-nums text-muted-foreground">{Math.round(getVoterWeight(vote.voterId, voterWeights) * 10) / 10}٪</span>
                               <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', vStyle.text)}>
                                 <span className={cn('h-1.5 w-1.5 rounded-full', vStyle.dot)} />
                                 {vStyle.label}
@@ -258,28 +267,28 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                     )}
                   </DetailSection>
 
-                  <div className="rounded-lg bg-slate-50 border border-slate-100 px-4 py-3">
-                    <p className="text-sm text-slate-600">
+                  <div className="rounded-xl border border-border/80 bg-muted/40 px-4 py-3">
+                    <p className="text-sm text-muted-foreground">
                       <span className="font-medium text-emerald-700">{Math.round(approveWeight)}٪ موافق</span>
                       {' · '}
-                      <span className="font-medium text-red-700">{Math.round(rejectWeight)}٪ رافض</span>
+                      <span className="font-medium text-destructive">{Math.round(rejectWeight)}٪ رافض</span>
                       {' · '}
-                      <span className="font-medium text-slate-600">{Math.round(abstainWeight)}٪ ممتنع</span>
+                      <span className="font-medium text-muted-foreground">{Math.round(abstainWeight)}٪ ممتنع</span>
                     </p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       ({approveCount} موافق · {rejectCount} رافض · {abstainCount} ممتنع من {voterWeights.length} مالك)
                     </p>
-                    <p className="text-xs text-slate-400 mt-1.5">
+                    <p className="mt-1.5 text-xs text-muted-foreground">
                       الحد الأدنى للموافقة: ٧٥٪ من مساحة المصوّتين
                     </p>
                   </div>
 
                   {selectedDecision.result && (
                     <>
-                      <Separator className="bg-slate-100" />
+                      <Separator className="bg-border" />
                       <DetailSection title="النتيجة">
-                        <p className="text-base text-slate-700">{selectedDecision.result}</p>
-                        <p className="text-xs text-slate-500 mt-2">
+                        <p className="text-base text-foreground/85">{selectedDecision.result}</p>
+                        <p className="mt-2 text-xs text-muted-foreground">
                           لأغراض تنظيمية — للإجراء الرسمي يُرجى الرجوع لمنصة ملاك
                         </p>
                         <a
@@ -298,7 +307,7 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
                   {/* Close voting button — chairman or vice chairman */}
                   {['chairman', 'vice_chairman'].includes(role) && selectedDecision.status === 'open' && (
                     <>
-                      <Separator className="bg-slate-100" />
+                      <Separator className="bg-border" />
                       <Button
                         variant="destructive"
                         className="w-full"
@@ -311,7 +320,7 @@ export function DecisionDetailSheet({ decisionId, open, onOpenChange }: Decision
 
                   {/* Created at timestamp */}
                   {selectedDecision.createdAt && (
-                    <p className="text-xs text-slate-400 pt-2">
+                    <p className="pt-2 text-xs text-muted-foreground">
                       أُنشئ {formatRelativeTime(selectedDecision.createdAt)}
                     </p>
                   )}

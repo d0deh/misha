@@ -49,7 +49,7 @@ import type { Document } from '@/lib/types'
 
 const docTypeBadgeStyles: Record<string, { dot: string; badge: string }> = {
   statute: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
-  minutes: { dot: 'bg-violet-500', badge: 'border-violet-200 bg-violet-50 text-violet-700' },
+  minutes: { dot: 'bg-info', badge: 'border-info/20 bg-info/10 text-info' },
   invoice: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
   contract: { dot: 'bg-success', badge: 'border-success/20 bg-success/10 text-success' },
   report: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },

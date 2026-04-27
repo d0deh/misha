@@ -12,7 +12,7 @@ export default function GlobalError({
   return (
     <html lang="ar" dir="rtl">
       <body
-        className="min-h-screen font-sans text-slate-900 antialiased"
+        className="min-h-screen bg-background font-sans text-foreground antialiased"
         style={{
           background:
             'radial-gradient(circle at 50% 12%, rgba(13,148,136,0.07), transparent 45%), linear-gradient(180deg, #fafaf7 0%, #f3f4f0 100%)',
@@ -60,13 +60,13 @@ export function ErrorComposition({
 
         {/* the words */}
         <div className="space-y-4 text-center">
-          <p className="font-mono text-[0.7rem] uppercase tracking-[0.28em] text-slate-400" dir="ltr">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.28em] text-muted-foreground" dir="ltr">
             error · 500
           </p>
-          <h1 className="text-balance text-[1.6rem] font-semibold leading-snug tracking-tight text-slate-900 md:text-[2rem]">
+          <h1 className="text-balance text-[1.6rem] font-semibold leading-snug text-foreground md:text-[2rem]">
             {headline}
           </h1>
-          <p className="mx-auto max-w-md text-balance text-[0.95rem] leading-8 text-slate-600">
+          <p className="mx-auto max-w-md text-balance text-[0.95rem] leading-8 text-muted-foreground">
             {body}
           </p>
         </div>
@@ -75,7 +75,7 @@ export function ErrorComposition({
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button
             onClick={onRetry}
-            className="group inline-flex h-12 min-w-48 items-center justify-center gap-2.5 rounded-full bg-slate-900 px-6 text-[0.95rem] font-medium text-white transition-all hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+            className="group inline-flex h-12 min-w-48 items-center justify-center gap-2.5 rounded-full bg-shell px-6 text-[0.95rem] font-medium text-shell-foreground transition-all hover:bg-shell/92 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2"
           >
             <span
               aria-hidden
@@ -87,7 +87,7 @@ export function ErrorComposition({
           {showHomeLink && (
             <Link
               href="/buildings"
-              className="inline-flex h-12 min-w-48 items-center justify-center rounded-full border border-slate-300 bg-white px-6 text-[0.95rem] font-medium text-slate-800 transition-colors hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+              className="inline-flex h-12 min-w-48 items-center justify-center rounded-full border border-border bg-card px-6 text-[0.95rem] font-medium text-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2"
             >
               العودة للرئيسية
             </Link>
@@ -97,10 +97,10 @@ export function ErrorComposition({
         {/* the fine print — debugging aid, not shouty */}
         {digest && (
           <p
-            className="mt-12 text-center font-mono text-[0.72rem] tracking-[0.14em] text-slate-400"
+            className="mt-12 text-center font-mono text-[0.72rem] tracking-[0.14em] text-muted-foreground"
             dir="ltr"
           >
-            <span className="me-1 text-slate-500">trace</span>
+            <span className="me-1 text-muted-foreground">trace</span>
             {digest}
           </p>
         )}
@@ -118,7 +118,7 @@ function PlumbLine() {
       stroke="currentColor"
       strokeWidth="1.25"
       strokeLinecap="round"
-      className="h-32 w-auto text-slate-400"
+      className="h-32 w-auto text-muted-foreground"
       aria-hidden
     >
       {/* fixed beam — solid, complete */}
@@ -158,7 +158,7 @@ function CornerMarks() {
     <div className="pointer-events-none fixed inset-0" aria-hidden>
       {/* top-inline-start (right in RTL) */}
       <svg
-        className="absolute top-6 right-6 h-5 w-5 text-slate-300"
+        className="absolute top-6 start-6 h-5 w-5 text-border"
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"
@@ -168,7 +168,7 @@ function CornerMarks() {
       </svg>
       {/* top-inline-end (left in RTL) */}
       <svg
-        className="absolute top-6 left-6 h-5 w-5 text-slate-300"
+        className="absolute top-6 end-6 h-5 w-5 text-border"
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"
@@ -178,7 +178,7 @@ function CornerMarks() {
       </svg>
       {/* bottom-inline-start */}
       <svg
-        className="absolute bottom-6 right-6 h-5 w-5 text-slate-300"
+        className="absolute bottom-6 start-6 h-5 w-5 text-border"
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"
@@ -188,7 +188,7 @@ function CornerMarks() {
       </svg>
       {/* bottom-inline-end */}
       <svg
-        className="absolute bottom-6 left-6 h-5 w-5 text-slate-300"
+        className="absolute bottom-6 end-6 h-5 w-5 text-border"
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"

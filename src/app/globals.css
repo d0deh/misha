@@ -46,8 +46,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Readex Pro", "Readex Pro Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "Segoe UI Mono", monospace;
   --font-heading: var(--font-sans);
   --radius-sm: calc(var(--radius) * 0.55);
   --radius-md: calc(var(--radius) * 0.8);
@@ -59,7 +59,7 @@
 }
 
 :root {
-  --background: #f8f9fb;
+  --background: #f7f8f5;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
@@ -69,9 +69,9 @@
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #334155;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #e2e8f0;
+  --muted: #eef2ee;
+  --muted-foreground: #62716b;
+  --accent: #e4eee9;
   --accent-foreground: #1e293b;
   --destructive: #dc2626;
   --destructive-foreground: #fef2f2;
@@ -81,12 +81,12 @@
   --warning-foreground: #fffbeb;
   --info: #0284c7;
   --info-foreground: #f0f9ff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #dfe6e2;
+  --input: #dfe6e2;
   --ring: #0d9488;
-  --shell: #0f172a;
+  --shell: #123f45;
   --shell-foreground: #f8fafc;
-  --shell-muted: #94a3b8;
+  --shell-muted: #a8c8c3;
   --chart-1: #0d9488;
   --chart-2: #d97706;
   --chart-3: #0284c7;
@@ -115,8 +115,8 @@
   body {
     @apply min-h-screen bg-background text-foreground leading-relaxed antialiased;
     background-image:
-      radial-gradient(circle at top, rgb(13 148 136 / 0.05), transparent 30%),
-      linear-gradient(180deg, #f8f9fb 0%, #f1f5f9 100%);
+      radial-gradient(circle at top, rgb(13 148 136 / 0.045), transparent 30%),
+      linear-gradient(180deg, #f7f8f5 0%, #edf2ee 100%);
   }
 
   ::selection {

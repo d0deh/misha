@@ -42,7 +42,7 @@ export default function Loading() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="space-y-2 rounded-[1.1rem] border border-border/80 border-s-[4px] border-s-border bg-white/70 p-4"
+                className="space-y-2 rounded-[1.1rem] border border-border/80 border-s-[4px] border-s-border bg-card/70 p-4"
               >
                 <div className="flex items-center justify-between gap-3">
                   <Bar className="h-4 w-48 md:w-64" delay={300 + i * 80} tone="strong" />
@@ -96,8 +96,8 @@ type BarProps = {
 function Bar({ className = '', delay = 0, tone = 'default' }: BarProps) {
   const palette =
     tone === 'strong'
-      ? 'bg-slate-200/80'
-      : 'bg-slate-100'
+      ? 'bg-muted-foreground/18'
+      : 'bg-muted/80'
   return (
     <span
       aria-hidden

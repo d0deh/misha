@@ -49,7 +49,7 @@ import { useToast } from '@/lib/use-toast'
 const roleBadgeStyles: Record<string, { dot: string; badge: string }> = {
   chairman: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
   vice_chairman: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
-  board_member: { dot: 'bg-violet-500', badge: 'border-violet-200 bg-violet-50 text-violet-700' },
+  board_member: { dot: 'bg-info', badge: 'border-info/20 bg-info/10 text-info' },
   manager: { dot: 'bg-warning', badge: 'border-warning/20 bg-warning/10 text-warning' },
   owner: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
   resident: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },

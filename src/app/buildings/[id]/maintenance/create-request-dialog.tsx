@@ -46,6 +46,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
   const [newDescription, setNewDescription] = useState('')
   const [newLocation, setNewLocation] = useState('')
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium')
+  const [formErrors, setFormErrors] = useState<{ title?: string; description?: string }>({})
 
   function handleOpenChange(nextOpen: boolean) {
     if (nextOpen) {
@@ -54,12 +55,19 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
       setNewDescription('')
       setNewLocation(userUnits.length > 0 ? userUnits[0].id : 'common')
       setNewPriority('medium')
+      setFormErrors({})
     }
     onOpenChange(nextOpen)
   }
 
   function handleCreateRequest() {
-    if (!newTitle.trim() || !newDescription.trim()) return
+    const nextErrors: { title?: string; description?: string } = {}
+    if (!newTitle.trim()) nextErrors.title = 'العنوان مطلوب'
+    if (!newDescription.trim()) nextErrors.description = 'الوصف مطلوب'
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors)
+      return
+    }
 
     const isCommon = newLocation === 'common'
     appData.addMaintenanceRequest(
@@ -89,19 +97,35 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
             <Label>العنوان</Label>
             <Input
               value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
+              onChange={(e) => {
+                setNewTitle(e.target.value)
+                if (formErrors.title) setFormErrors((prev) => ({ ...prev, title: undefined }))
+              }}
               placeholder="عنوان الطلب"
-              className="border-slate-200 focus-visible:ring-ring"
+              aria-invalid={Boolean(formErrors.title)}
+              className="border-border focus-visible:ring-ring"
             />
+            {formErrors.title && (
+              <p className="text-xs text-destructive">{formErrors.title}</p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label>الوصف</Label>
             <Textarea
               value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
+              onChange={(e) => {
+                setNewDescription(e.target.value)
+                if (formErrors.description) {
+                  setFormErrors((prev) => ({ ...prev, description: undefined }))
+                }
+              }}
               placeholder="وصف تفصيلي للمشكلة"
-              className="border-slate-200 focus-visible:ring-ring"
+              aria-invalid={Boolean(formErrors.description)}
+              className="border-border focus-visible:ring-ring"
             />
+            {formErrors.description && (
+              <p className="text-xs text-destructive">{formErrors.description}</p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label>الموقع</Label>
@@ -113,7 +137,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
               }
               return (
                 <Select value={newLocation} onValueChange={(v) => setNewLocation(v ?? '')} items={items}>
-                  <SelectTrigger className="border-slate-200 focus:ring-ring">
+                  <SelectTrigger className="border-border focus:ring-ring">
                     <SelectValue placeholder="اختر الموقع" />
                   </SelectTrigger>
                   <SelectContent>
@@ -131,7 +155,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
           <div className="space-y-1.5">
             <Label>الأولوية</Label>
             <Select value={newPriority} onValueChange={(v) => setNewPriority(v as typeof newPriority)} items={{ urgent: 'عاجلة', high: 'عالية', medium: 'متوسطة', low: 'منخفضة' }}>
-              <SelectTrigger className="border-slate-200 focus:ring-ring">
+              <SelectTrigger className="border-border focus:ring-ring">
                 <SelectValue placeholder="اختر الأولوية" />
               </SelectTrigger>
               <SelectContent>
