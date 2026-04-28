@@ -1,7 +1,7 @@
-﻿export function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
+export function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-3 text-sm font-medium text-muted-foreground">
+      <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
         {title}
       </h4>
       <div className="space-y-2">{children}</div>

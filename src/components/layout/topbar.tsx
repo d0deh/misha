@@ -1,16 +1,16 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  Building2,
   Check,
   ChevronDown,
   ChevronLeft,
   ClipboardList,
   FileText,
   LayoutDashboard,
-  LayoutGrid,
   MoreHorizontal,
   Users,
   Vote,
@@ -61,57 +61,57 @@ type NavItem = {
 function getNavItems(buildingId: string): NavItem[] {
   return [
     {
-      title: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
-      desktopLabel: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
+      title: 'لوحة التحكم',
+      desktopLabel: 'لوحة التحكم',
       href: `/buildings/${buildingId}`,
       icon: LayoutDashboard,
       mobileIcon: LayoutDashboard,
-      description: 'Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø© Ø¹Ù„Ù‰ Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰',
+      description: 'نظرة عامة على عمليات المبنى',
       minRole: null,
     },
     {
-      title: 'Ø§Ù„Ù‚Ø±Ø§Ø±Ø§Øª',
-      desktopLabel: 'Ø§Ù„Ù‚Ø±Ø§Ø±Ø§Øª',
+      title: 'القرارات',
+      desktopLabel: 'القرارات',
       href: `/buildings/${buildingId}/decisions`,
       icon: Vote,
       mobileIcon: Vote,
-      description: 'Ø§Ù„Ù‚Ø±Ø§Ø±Ø§Øª Ø§Ù„Ù…ÙØªÙˆØ­Ø© ÙˆØ§Ù„Ù…ÙˆØ§Ø¹ÙŠØ¯ ÙˆØ§Ù„Ù†ØªØ§Ø¦Ø¬',
+      description: 'القرارات المفتوحة والمواعيد والنتائج',
       minRole: 'owner',
     },
     {
-      title: 'Ø§Ù„ØµÙŠØ§Ù†Ø©',
-      desktopLabel: 'Ø§Ù„ØµÙŠØ§Ù†Ø©',
+      title: 'الصيانة',
+      desktopLabel: 'الصيانة',
       href: `/buildings/${buildingId}/maintenance`,
       icon: Wrench,
       mobileIcon: ClipboardList,
-      description: 'Ø§Ù„Ø·Ù„Ø¨Ø§Øª ÙˆØ§Ù„ØªÙ‚Ø¯Ù… ÙˆÙ‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø§Ø³ØªØ¬Ø§Ø¨Ø©',
+      description: 'الطلبات والتقدم وقائمة الاستجابة',
       minRole: null,
     },
     {
-      title: 'Ø§Ù„Ø¬Ù…Ø¹ÙŠØ©',
-      desktopLabel: 'Ø§Ù„Ø¬Ù…Ø¹ÙŠØ©',
+      title: 'الجمعية',
+      desktopLabel: 'الجمعية',
       href: `/buildings/${buildingId}/association`,
       icon: Users,
       mobileIcon: Users,
-      description: 'Ø§Ù„Ø£Ø¯ÙˆØ§Ø± ÙˆØ§Ù„Ù…Ù„Ø§Ùƒ ÙˆØ§Ù„Ø±Ø³ÙˆÙ…',
+      description: 'الأدوار والملاك والرسوم',
       minRole: 'owner',
     },
     {
-      title: 'Ø§Ù„Ù…Ø¨Ù†Ù‰ ÙˆØ§Ù„ÙˆØ­Ø¯Ø§Øª',
-      desktopLabel: 'Ø§Ù„ÙˆØ­Ø¯Ø§Øª',
+      title: 'المبنى والوحدات',
+      desktopLabel: 'الوحدات',
       href: `/buildings/${buildingId}/units`,
-      icon: LayoutGrid,
-      mobileIcon: LayoutGrid,
-      description: 'Ø§Ù„ÙˆØ­Ø¯Ø§Øª ÙˆØ§Ù„Ø¥Ø´ØºØ§Ù„ ÙˆØ³Ø¬Ù„Ø§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰',
+      icon: Building2,
+      mobileIcon: Building2,
+      description: 'الوحدات والإشغال وسجلات المبنى',
       minRole: null,
     },
     {
-      title: 'Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª',
-      desktopLabel: 'Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª',
+      title: 'المستندات',
+      desktopLabel: 'المستندات',
       href: `/buildings/${buildingId}/documents`,
       icon: FileText,
       mobileIcon: FileText,
-      description: 'Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª ÙˆØ§Ù„Ø³Ø¬Ù„Ø§Øª ÙˆØ§Ù„Ø£Ø±Ø´ÙŠÙ',
+      description: 'المستندات والسجلات والأرشيف',
       minRole: null,
     },
   ]
@@ -170,34 +170,34 @@ export function Topbar({ buildingId }: { buildingId: string }) {
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex items-start justify-between gap-4 py-4 md:gap-6">
             <div className="flex min-w-0 flex-1 items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/12 bg-white/10 text-base font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:h-12 md:w-12">
-                Ù…
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/12 bg-white/10 text-base font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:h-12 md:w-12">
+                م
               </div>
               <div className="min-w-0 flex-1">
-                <p className="hidden text-xs font-medium text-shell-muted md:block">Ù…Ø±ÙƒØ² Ù‚ÙŠØ§Ø¯Ø© Ù…Ø´Ø§Ø¹</p>
+                <p className="hidden text-xs font-medium text-shell-muted md:block">مركز قيادة مشاع</p>
                 <TooltipProvider delay={150}>
                   <Tooltip>
                     <TooltipTrigger
                       render={
                         <span
-                          className="mt-1 block max-w-[min(100%,30rem)] cursor-default overflow-hidden text-[1.35rem] leading-tight font-medium text-shell-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] md:text-[1.55rem]"
+                          className="mt-1 block max-w-[min(100%,30rem)] cursor-default overflow-hidden text-[1.35rem] leading-tight font-semibold text-shell-foreground [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] md:text-[1.55rem]"
                           title={buildingData?.building.name}
                         />
                       }
                     >
-                      {buildingData?.building.name || 'Ù…ÙØ´Ø§Ø¹'}
+                      {buildingData?.building.name || 'مِشاع'}
                     </TooltipTrigger>
                     <TooltipContent
                       side="bottom"
                       align="end"
                       className="max-w-[min(80vw,28rem)] whitespace-normal bg-foreground text-background"
                     >
-                      {buildingData?.building.name || 'Ù…ÙØ´Ø§Ø¹'}
+                      {buildingData?.building.name || 'مِشاع'}
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <p className="mt-1 text-sm text-shell-muted">
-                  {buildingData ? `${buildingData.building.unitCount} ÙˆØ­Ø¯Ø©` : ''}
+                  {buildingData ? `${buildingData.building.unitCount} وحدة` : ''}
                 </p>
               </div>
             </div>
@@ -211,7 +211,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-64 p-2">
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel className="px-3 py-1.5">ØªØ¨Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù†Ø¸ÙˆØ±</DropdownMenuLabel>
+                    <DropdownMenuLabel className="px-3 py-1.5">تبديل المنظور</DropdownMenuLabel>
                     {switchableUsers.map((user) => {
                       const owner = getOwnerById(user.userId, buildingData?.owners)
                       const isActive = user.userId === userId
@@ -244,7 +244,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
 
           <div className="hidden border-t border-white/10 py-3 lg:block">
             <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <nav className="flex min-w-max items-stretch gap-2" aria-label="ØªÙ†Ù‚Ù„ Ø§Ù„Ù…Ø¨Ù†Ù‰">
+              <nav className="flex min-w-max items-stretch gap-2" aria-label="تنقل المبنى">
                 {visibleNav.map((item) => {
                   const isActive =
                     item.href === `/buildings/${buildingId}`
@@ -309,7 +309,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                   <MobileIcon className="h-5 w-5" />
                   <NavBadge count={badgeCounts[item.href] || 0} ringClassName="ring-card" />
                 </span>
-                <span className="text-[11px] font-medium">{item.title === 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…' ? 'Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©' : item.title}</span>
+                <span className="text-[11px] font-medium">{item.title === 'لوحة التحكم' ? 'الرئيسية' : item.title}</span>
               </Link>
             )
           })}
@@ -331,7 +331,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                 />
               )}
             </span>
-            <span className="text-[11px] font-medium">Ø§Ù„Ù…Ø²ÙŠØ¯</span>
+            <span className="text-[11px] font-medium">المزيد</span>
           </button>
         </div>
       </nav>
@@ -364,7 +364,7 @@ export function Topbar({ buildingId }: { buildingId: string }) {
                     <p className="text-xs text-muted-foreground">{item.description}</p>
                   </div>
                   {badge > 0 && (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-medium text-destructive-foreground">
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-semibold text-destructive-foreground">
                       {badge}
                     </span>
                   )}
@@ -391,11 +391,11 @@ function NavBadge({
   return (
     <span
       className={cn(
-        'pointer-events-none absolute inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-medium leading-none text-destructive-foreground ring-2',
+        'pointer-events-none absolute inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-semibold leading-none text-destructive-foreground ring-2',
         ringClassName
       )}
       style={{ insetInlineEnd: '-0.35rem', insetBlockStart: '-0.35rem' }}
-      aria-label={`${count} Ø¥Ø´Ø¹Ø§Ø±Ø§Øª`}
+      aria-label={`${count} إشعارات`}
     >
       {count > 99 ? '99+' : count}
     </span>

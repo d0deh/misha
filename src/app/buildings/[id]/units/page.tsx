@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useMemo, useState } from 'react'
 import { LayoutGrid, Mail, Pencil, Phone, Search } from 'lucide-react'
@@ -94,7 +94,7 @@ export default function UnitsPage() {
   const [editName, setEditName] = useState(building.name)
   const [editAddress, setEditAddress] = useState(building.nationalAddress)
   const [editArea, setEditArea] = useState(String(building.totalArea))
-  const [editCommonAreas, setEditCommonAreas] = useState(building.commonAreas.join('ØŒ '))
+  const [editCommonAreas, setEditCommonAreas] = useState(building.commonAreas.join('، '))
 
   function handleEditSubmit() {
     updateBuilding(
@@ -103,13 +103,13 @@ export default function UnitsPage() {
         nationalAddress: editAddress.trim(),
         totalArea: Number(editArea) || building.totalArea,
         commonAreas: editCommonAreas
-          .split('ØŒ')
+          .split('،')
           .map((value) => value.trim())
           .filter(Boolean),
       },
       userId
     )
-    toast('ØªÙ… ØªØ­Ø¯ÙŠØ« Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰')
+    toast('تم تحديث بيانات المبنى')
     setEditOpen(false)
   }
 
@@ -149,29 +149,29 @@ export default function UnitsPage() {
     <div className="space-y-5">
       <PageHeader>
         <PageHeaderBody>
-          <PageHeaderEyebrow>Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰</PageHeaderEyebrow>
-          <PageHeaderTitle>Ø§Ù„Ù…Ø¨Ù†Ù‰ ÙˆØ§Ù„ÙˆØ­Ø¯Ø§Øª</PageHeaderTitle>
+          <PageHeaderEyebrow>بيانات المبنى</PageHeaderEyebrow>
+          <PageHeaderTitle>المبنى والوحدات</PageHeaderTitle>
           <PageHeaderDescription>
-            {building.name} Â· {building.nationalAddress} Â· {building.unitCount} ÙˆØ­Ø¯Ø© Â· Ø§Ù„Ø¥Ø´ØºØ§Ù„{' '}
-            {occupancyRate}Ùª
+            {building.name} · {building.nationalAddress} · {building.unitCount} وحدة · الإشغال{' '}
+            {occupancyRate}٪
           </PageHeaderDescription>
         </PageHeaderBody>
         <PageHeaderActions>
           <PermissionButton
             hasPermission={canEdit}
-            tooltipText="ÙÙ‚Ø· Ø±Ø¦ÙŠØ³ Ø§Ù„Ø¬Ù…Ø¹ÙŠØ© ÙŠÙ…ÙƒÙ†Ù‡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„"
+            tooltipText="فقط رئيس الجمعية يمكنه التعديل"
             variant="outline"
             size="sm"
             onClick={() => {
               setEditName(building.name)
               setEditAddress(building.nationalAddress)
               setEditArea(String(building.totalArea))
-              setEditCommonAreas(building.commonAreas.join('ØŒ '))
+              setEditCommonAreas(building.commonAreas.join('، '))
               setEditOpen(true)
             }}
           >
             <Pencil className="h-4 w-4" data-icon="inline-start" />
-            ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰
+            تعديل بيانات المبنى
           </PermissionButton>
         </PageHeaderActions>
       </PageHeader>
@@ -181,7 +181,7 @@ export default function UnitsPage() {
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Ø¨Ø­Ø« Ø¨Ø±Ù‚Ù… Ø§Ù„ÙˆØ­Ø¯Ø© Ø£Ùˆ Ø§Ø³Ù… Ø§Ù„Ù…Ø§Ù„Ùƒ..."
+              placeholder="بحث برقم الوحدة أو اسم المالك..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               className="ps-9"
@@ -189,26 +189,26 @@ export default function UnitsPage() {
           </div>
           <Select value={floorFilter} onValueChange={(value) => setFloorFilter(value ?? '')}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="ÙƒÙ„ Ø§Ù„Ø·ÙˆØ§Ø¨Ù‚" />
+              <SelectValue placeholder="كل الطوابق" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">ÙƒÙ„ Ø§Ù„Ø·ÙˆØ§Ø¨Ù‚</SelectItem>
+              <SelectItem value="all">كل الطوابق</SelectItem>
               {floors.map((floor) => (
                 <SelectItem key={floor} value={String(floor)}>
-                  Ø§Ù„Ø·Ø§Ø¨Ù‚ {floor}
+                  الطابق {floor}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? '')}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª" />
+              <SelectValue placeholder="كل الحالات" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª</SelectItem>
-              <SelectItem value="owner-occupied">Ù…Ø§Ù„Ùƒ Ù…Ù‚ÙŠÙ…</SelectItem>
-              <SelectItem value="occupied">Ù…Ø¤Ø¬Ø±Ø©</SelectItem>
-              <SelectItem value="vacant">Ø´Ø§ØºØ±Ø©</SelectItem>
+              <SelectItem value="all">كل الحالات</SelectItem>
+              <SelectItem value="owner-occupied">مالك مقيم</SelectItem>
+              <SelectItem value="occupied">مؤجرة</SelectItem>
+              <SelectItem value="vacant">شاغرة</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -218,11 +218,11 @@ export default function UnitsPage() {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/45 hover:bg-muted/45">
-              <TableHead>Ø±Ù‚Ù… Ø§Ù„ÙˆØ­Ø¯Ø©</TableHead>
-              <TableHead className="hidden md:table-cell">Ø§Ù„Ø·Ø§Ø¨Ù‚</TableHead>
-              <TableHead className="hidden md:table-cell">Ø§Ù„Ù…Ø³Ø§Ø­Ø©</TableHead>
-              <TableHead>Ø§Ù„Ù…Ø§Ù„Ùƒ</TableHead>
-              <TableHead>Ø§Ù„Ø­Ø§Ù„Ø©</TableHead>
+              <TableHead>رقم الوحدة</TableHead>
+              <TableHead className="hidden md:table-cell">الطابق</TableHead>
+              <TableHead className="hidden md:table-cell">المساحة</TableHead>
+              <TableHead>المالك</TableHead>
+              <TableHead>الحالة</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -230,9 +230,9 @@ export default function UnitsPage() {
               <TableRow>
                 <TableCell colSpan={5} className="h-32 text-center align-middle">
                   <LayoutGrid className="mx-auto mb-3 h-12 w-12 text-muted-foreground/45" />
-                  <p className="text-base font-medium text-foreground">Ù„Ø§ ØªÙˆØ¬Ø¯ ÙˆØ­Ø¯Ø§Øª Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ù„Ø¨Ø­Ø«</p>
+                  <p className="text-base font-medium text-foreground">لا توجد وحدات مطابقة للبحث</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Ø­Ø§ÙˆÙ„ ØªØºÙŠÙŠØ± Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¨Ø­Ø« Ø£Ùˆ Ø§Ù„ÙÙ„Ø§ØªØ±
+                    حاول تغيير معايير البحث أو الفلاتر
                   </p>
                 </TableCell>
               </TableRow>
@@ -256,11 +256,11 @@ export default function UnitsPage() {
                     }}
                     className={cn('h-12 cursor-pointer hover:bg-primary/6', isMine && 'bg-primary/6')}
                   >
-                    <TableCell className="font-medium tabular-nums text-foreground">
+                    <TableCell className="font-semibold tabular-nums text-foreground">
                       {unit.unitNumber}
                       {isMine && (
                         <span className="ms-2 rounded-full border border-primary/15 bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                          ÙˆØ­Ø¯ØªÙƒ
+                          وحدتك
                         </span>
                       )}
                     </TableCell>
@@ -268,10 +268,10 @@ export default function UnitsPage() {
                       {unit.floor}
                     </TableCell>
                     <TableCell className="hidden tabular-nums text-sm text-muted-foreground md:table-cell">
-                      {unit.area} Ù…Â²
+                      {unit.area} م²
                     </TableCell>
                     <TableCell className="text-sm text-foreground/85">
-                      {owner?.fullName || 'â€”'}
+                      {owner?.fullName || '—'}
                     </TableCell>
                     <TableCell>
                       <span className={cn('status-pill', style.badge)}>
@@ -288,7 +288,7 @@ export default function UnitsPage() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Ø¹Ø±Ø¶ {filteredUnits.length} Ù…Ù† {units.length} ÙˆØ­Ø¯Ø©
+        عرض {filteredUnits.length} من {units.length} وحدة
       </p>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -298,41 +298,41 @@ export default function UnitsPage() {
               <div className="flex flex-col">
                 <div className="bg-shell p-5 pe-12 text-shell-foreground">
                   <SheetHeader className="p-0">
-                    <SheetDescription className="text-shell-muted">Ø¨ÙŠØ§Ù† Ø§Ù„ÙˆØ­Ø¯Ø©</SheetDescription>
-                    <SheetTitle className="text-lg font-medium text-shell-foreground">
-                      Ø§Ù„ÙˆØ­Ø¯Ø© {selectedUnit.unitNumber}
+                    <SheetDescription className="text-shell-muted">بيان الوحدة</SheetDescription>
+                    <SheetTitle className="text-lg font-semibold text-shell-foreground">
+                      الوحدة {selectedUnit.unitNumber}
                     </SheetTitle>
                   </SheetHeader>
                   <p className="mt-1 text-sm text-shell-muted">
-                    {getStatusLabel(selectedUnit.occupancyStatus)} Â· Ø§Ù„Ø·Ø§Ø¨Ù‚ {selectedUnit.floor}
+                    {getStatusLabel(selectedUnit.occupancyStatus)} · الطابق {selectedUnit.floor}
                   </p>
                 </div>
 
                 <div className="space-y-5 p-5">
-                  <DetailSection title="Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ÙˆØ­Ø¯Ø©">
-                    <DetailRow label="Ø§Ù„Ù…Ø³Ø§Ø­Ø©" value={`${selectedUnit.area} Ù…Â²`} />
+                  <DetailSection title="بيانات الوحدة">
+                    <DetailRow label="المساحة" value={`${selectedUnit.area} م²`} />
                     <DetailRow
-                      label="Ø­ØµØ© Ø§Ù„Ù…Ù„ÙƒÙŠØ©"
-                      value={`${selectedUnit.ownershipSharePercentage}Ùª`}
+                      label="حصة الملكية"
+                      value={`${selectedUnit.ownershipSharePercentage}٪`}
                     />
                     <DetailRow
-                      label="Ø­Ø§Ù„Ø© Ø§Ù„Ø¥Ø´ØºØ§Ù„"
+                      label="حالة الإشغال"
                       value={getStatusLabel(selectedUnit.occupancyStatus)}
                     />
                     {myUnitIds.includes(selectedUnit.id) && (
                       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
                         <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                        Ø£Ù†Øª Ù…Ø§Ù„Ùƒ Ù‡Ø°Ù‡ Ø§Ù„ÙˆØ­Ø¯Ø©
+                        أنت مالك هذه الوحدة
                       </span>
                     )}
-                    {selectedUnit.notes && <DetailRow label="Ù…Ù„Ø§Ø­Ø¸Ø§Øª" value={selectedUnit.notes} />}
+                    {selectedUnit.notes && <DetailRow label="ملاحظات" value={selectedUnit.notes} />}
                   </DetailSection>
 
                   {selectedOwner && (
                     <>
                       <Separator className="bg-border" />
-                      <DetailSection title="Ø§Ù„Ù…Ø§Ù„Ùƒ">
-                        <DetailRow label="Ø§Ù„Ø§Ø³Ù…" value={selectedOwner.fullName} />
+                      <DetailSection title="المالك">
+                        <DetailRow label="الاسم" value={selectedOwner.fullName} />
                         {canSeeContactDetails(role) && (
                           <>
                             <div className="flex items-center gap-2">
@@ -350,12 +350,12 @@ export default function UnitsPage() {
                           </>
                         )}
                         {selectedOwnerRole && (
-                          <DetailRow label="Ø§Ù„Ø¯ÙˆØ±" value={getRoleLabel(selectedOwnerRole.role)} />
+                          <DetailRow label="الدور" value={getRoleLabel(selectedOwnerRole.role)} />
                         )}
                         {selectedLink?.isPrimaryRepresentative && (
                           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success">
                             <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                            Ù…Ù…Ø«Ù„ Ø±Ø¦ÙŠØ³ÙŠ
+                            ممثل رئيسي
                           </span>
                         )}
                       </DetailSection>
@@ -365,7 +365,7 @@ export default function UnitsPage() {
                   {selectedOwnerUnits.length > 1 && selectedOwner && (
                     <>
                       <Separator className="bg-border" />
-                      <DetailSection title="ÙˆØ­Ø¯Ø§Øª Ø£Ø®Ø±Ù‰ Ù„Ù„Ù…Ø§Ù„Ùƒ">
+                      <DetailSection title="وحدات أخرى للمالك">
                         <div className="flex flex-wrap gap-2">
                           {selectedOwnerUnits
                             .filter((unit) => unit.id !== selectedUnit.id)
@@ -376,7 +376,7 @@ export default function UnitsPage() {
                                   key={unit.id}
                                   onClick={() => setSelectedUnit(unit)}
                                   className={cn(
-                                    'rounded-xl border px-3.5 py-2 text-sm font-medium tabular-nums transition-colors hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                                    'rounded-xl border px-3.5 py-2 text-sm font-semibold tabular-nums transition-colors hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                                     style.badge
                                   )}
                                 >
@@ -398,24 +398,24 @@ export default function UnitsPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰</DialogTitle>
-            <DialogDescription>Ø­Ø¯Ù‘Ø« Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© Ù„Ù„Ù…Ø¨Ù†Ù‰</DialogDescription>
+            <DialogTitle>تعديل بيانات المبنى</DialogTitle>
+            <DialogDescription>حدّث المعلومات الأساسية للمبنى</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label>Ø§Ø³Ù… Ø§Ù„Ù…Ø¨Ù†Ù‰</Label>
+              <Label>اسم المبنى</Label>
               <Input value={editName} onChange={(event) => setEditName(event.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ÙˆØ·Ù†ÙŠ</Label>
+              <Label>العنوان الوطني</Label>
               <Input value={editAddress} onChange={(event) => setEditAddress(event.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Ø§Ù„Ù…Ø³Ø§Ø­Ø© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ© (Ù…Â²)</Label>
+              <Label>المساحة الإجمالية (م²)</Label>
               <Input type="number" value={editArea} onChange={(event) => setEditArea(event.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Ø§Ù„Ù…Ø±Ø§ÙÙ‚ Ø§Ù„Ù…Ø´ØªØ±ÙƒØ©</Label>
+              <Label>المرافق المشتركة</Label>
               <Textarea
                 rows={3}
                 value={editCommonAreas}
@@ -424,9 +424,9 @@ export default function UnitsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleEditSubmit}>Ø­ÙØ¸ Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª</Button>
+            <Button onClick={handleEditSubmit}>حفظ التغييرات</Button>
             <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Ø¥Ù„ØºØ§Ø¡
+              إلغاء
             </Button>
           </DialogFooter>
         </DialogContent>

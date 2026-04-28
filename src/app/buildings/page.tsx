@@ -13,7 +13,7 @@ export default function BuildingsPage() {
         <header className="mb-6 rounded-3xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(28,28,28,0.03)] md:mb-8 md:p-7">
           <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
-              <MishaLogo markSize={44} />
+              <MishaLogo markSize={48} />
               <p className="mt-8 text-xs font-medium text-muted-foreground">منصة مِشاع</p>
               <h1 className="mt-3 text-[2.1rem] font-medium leading-tight text-foreground md:text-[2.75rem]">
                 اختر مساحة العمل
@@ -54,7 +54,7 @@ export default function BuildingsPage() {
                   <div>
                     <div className="mb-5 flex items-start justify-between gap-4">
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-muted/45 text-primary">
-                        <MishaMark size={24} tone="brand" />
+                        <MishaMark size={28} tone="brand" />
                       </span>
                       <span className="inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
                         فتح اللوحة
@@ -90,7 +90,7 @@ function BuildingsEmptyState() {
   return (
     <section className="page-shell mx-auto mt-4 max-w-xl px-6 py-14 text-center md:px-10 md:py-16">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl border border-border bg-muted/45 text-primary">
-        <MishaMark size={34} tone="brand" />
+        <MishaMark size={38} tone="brand" />
       </div>
       <h2 className="mt-6 text-2xl font-medium text-foreground">ابدأ بإدارة أول مبنى</h2>
       <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-muted-foreground">

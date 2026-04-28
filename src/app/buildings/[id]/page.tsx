@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import {
@@ -103,24 +103,24 @@ export default function DashboardPage() {
 
   if (isAdmin) {
     if (urgentMaintenance.length > 0) {
-      attentionItems.push({ text: `${urgentMaintenance.length} Ø·Ù„Ø¨ ØµÙŠØ§Ù†Ø© Ø¹Ø§Ø¬Ù„`, href: `/buildings/${building.id}/maintenance` })
+      attentionItems.push({ text: `${urgentMaintenance.length} طلب صيانة عاجل`, href: `/buildings/${building.id}/maintenance` })
     }
     if (openDecisions.length > 0) {
-      attentionItems.push({ text: `${openDecisions.length} Ù‚Ø±Ø§Ø± Ù…ÙØªÙˆØ­ Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø¥Ø¬Ø±Ø§Ø¡`, href: `/buildings/${building.id}/decisions` })
+      attentionItems.push({ text: `${openDecisions.length} قرار مفتوح بانتظار إجراء`, href: `/buildings/${building.id}/decisions` })
     }
   } else if (isManager) {
     const pendingMaintenance = maintenanceRequests.filter(
       (request) => request.status === 'new' || request.status === 'in_progress'
     ).length
     if (pendingMaintenance > 0) {
-      attentionItems.push({ text: `${pendingMaintenance} Ø·Ù„Ø¨ ØµÙŠØ§Ù†Ø© ÙŠØ­ØªØ§Ø¬ Ù…ØªØ§Ø¨Ø¹Ø©`, href: `/buildings/${building.id}/maintenance` })
+      attentionItems.push({ text: `${pendingMaintenance} طلب صيانة يحتاج متابعة`, href: `/buildings/${building.id}/maintenance` })
     }
   } else {
     if (awaitingVote.length > 0) {
-      attentionItems.push({ text: `${awaitingVote.length} Ù‚Ø±Ø§Ø± Ø¨Ø§Ù†ØªØ¸Ø§Ø± ØªØµÙˆÙŠØªÙƒ`, href: `/buildings/${building.id}/decisions` })
+      attentionItems.push({ text: `${awaitingVote.length} قرار بانتظار تصويتك`, href: `/buildings/${building.id}/decisions` })
     }
     if (userMaintenanceOpen.length > 0) {
-      attentionItems.push({ text: `${userMaintenanceOpen.length} Ø·Ù„Ø¨ ØµÙŠØ§Ù†Ø© Ù…ÙØªÙˆØ­ Ø¹Ù„Ù‰ ÙˆØ­Ø¯Ø§ØªÙƒ`, href: `/buildings/${building.id}/maintenance` })
+      attentionItems.push({ text: `${userMaintenanceOpen.length} طلب صيانة مفتوح على وحداتك`, href: `/buildings/${building.id}/maintenance` })
     }
   }
 
@@ -136,36 +136,36 @@ export default function DashboardPage() {
 
   const commandCards = [
     {
-      title: 'ØªØµÙˆÙŠØªØ§Øª Ù…ÙØªÙˆØ­Ø©',
+      title: 'تصويتات مفتوحة',
       value: openDecisions.length,
-      hint: userCanVote ? `${awaitingVote.length} Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø±Ø¯Ùƒ` : 'ØªØ§Ø¨Ø¹ Ø³ÙŠØ± Ø§Ù„Ù‚Ø±Ø§Ø±Ø§Øª',
+      hint: userCanVote ? `${awaitingVote.length} بانتظار ردك` : 'تابع سير القرارات',
       href: `/buildings/${building.id}/decisions`,
       icon: Vote,
       tone: 'decisions' as const,
     },
     {
-      title: 'ØµÙŠØ§Ù†Ø© Ù†Ø´Ø·Ø©',
+      title: 'صيانة نشطة',
       value: activeMaintenanceCount,
       hint:
         urgentMaintenance.length > 0
-          ? `${urgentMaintenance.length} Ù…ØµÙ†Ù Ø¹Ø§Ø¬Ù„`
-          : 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ø¹Ø§Ø¬Ù„Ø© Ø­Ø§Ù„ÙŠØ§Ù‹',
+          ? `${urgentMaintenance.length} مصنف عاجل`
+          : 'لا توجد طلبات عاجلة حالياً',
       href: `/buildings/${building.id}/maintenance`,
       icon: Wrench,
       tone: 'maintenance' as const,
     },
     {
-      title: 'ÙˆØ­Ø¯Ø§Øª Ù…Ø´ØºÙˆÙ„Ø©',
+      title: 'وحدات مشغولة',
       value: occupiedUnits,
-      hint: `Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ø´ØºØ§Ù„ ${occupancyRate}Ùª`,
+      hint: `نسبة الإشغال ${occupancyRate}٪`,
       href: `/buildings/${building.id}/units`,
       icon: LayoutGrid,
       tone: 'units' as const,
     },
     {
-      title: 'Ø³Ø¬Ù„ Ø§Ù„Ù†Ø´Ø§Ø·',
+      title: 'سجل النشاط',
       value: activityLog.length,
-      hint: 'Ø§Ù„Ø£Ø­Ø¯Ø§Ø« ÙˆØ§Ù„ØªØºÙŠÙŠØ±Ø§Øª ÙˆØ§Ù„Ø¹Ù…Ù„ÙŠØ§Øª',
+      hint: 'الأحداث والتغييرات والعمليات',
       href: `/buildings/${building.id}/documents`,
       icon: FileText,
       tone: 'activity' as const,
@@ -173,7 +173,7 @@ export default function DashboardPage() {
   ]
 
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'ØµØ¨Ø§Ø­ Ø§Ù„Ø®ÙŠØ±' : 'Ù…Ø³Ø§Ø¡ Ø§Ù„Ø®ÙŠØ±'
+  const greeting = hour < 12 ? 'صباح الخير' : 'مساء الخير'
   const firstName = userName.split(' ')[0]
   const hijriDate = new Intl.DateTimeFormat('ar-SA', {
     weekday: 'long',
@@ -187,7 +187,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <PageHeader className="gap-3">
         <PageHeaderBody>
-          <PageHeaderEyebrow>Ù„ÙˆØ­Ø© Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© Ø§Ù„ÙŠÙˆÙ…ÙŠØ©</PageHeaderEyebrow>
+          <PageHeaderEyebrow>لوحة القيادة اليومية</PageHeaderEyebrow>
           <PageHeaderTitle className="text-[1.55rem] md:text-[1.85rem]">
             {greeting} {firstName}
           </PageHeaderTitle>
@@ -196,9 +196,9 @@ export default function DashboardPage() {
 
         {attentionItems.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 rounded-[1.15rem] border border-warning/20 bg-warning/8 px-3 py-2.5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-warning/25 bg-card/92 px-2.5 py-1 text-sm font-medium text-warning">
+            <div className="inline-flex items-center gap-2 rounded-full border border-warning/25 bg-card/92 px-2.5 py-1 text-sm font-semibold text-warning">
               <CircleAlert className="h-4 w-4 shrink-0" />
-              <span>ÙŠØ­ØªØ§Ø¬ Ø§Ù†ØªØ¨Ø§Ù‡Ùƒ</span>
+              <span>يحتاج انتباهك</span>
             </div>
             <ul className="flex flex-wrap gap-2 ps-0">
               {attentionItems.map((item) => (
@@ -216,33 +216,33 @@ export default function DashboardPage() {
         )}
       </PageHeader>
 
-      {/* Compact stat pills â€” mobile */}
+      {/* Compact stat pills — mobile */}
       <div className="flex gap-3 md:hidden">
         <Link
           href={`/buildings/${building.id}/decisions`}
           className="flex flex-1 items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3.5 py-3 transition-colors hover:bg-primary/4"
         >
           <Vote className="h-4 w-4 shrink-0 text-primary" />
-          <span className="text-lg font-medium tabular-nums text-foreground">{openDecisions.length}</span>
-          <span className="text-xs text-muted-foreground">Ù‚Ø±Ø§Ø± Ù…ÙØªÙˆØ­</span>
+          <span className="text-lg font-semibold tabular-nums text-foreground">{openDecisions.length}</span>
+          <span className="text-xs text-muted-foreground">قرار مفتوح</span>
         </Link>
         <Link
           href={`/buildings/${building.id}/maintenance`}
           className="flex flex-1 items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3.5 py-3 transition-colors hover:bg-primary/4"
         >
           <Wrench className="h-4 w-4 shrink-0 text-warning" />
-          <span className="text-lg font-medium tabular-nums text-foreground">{activeMaintenanceCount}</span>
-          <span className="text-xs text-muted-foreground">ØµÙŠØ§Ù†Ø© Ù†Ø´Ø·Ø©</span>
+          <span className="text-lg font-semibold tabular-nums text-foreground">{activeMaintenanceCount}</span>
+          <span className="text-xs text-muted-foreground">صيانة نشطة</span>
         </Link>
       </div>
 
-      {/* Full metric cards â€” desktop */}
+      {/* Full metric cards — desktop */}
       <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         {commandCards.map((card) => (
           <Link key={card.title} href={card.href} className="metric-card group">
             <div className="min-w-0">
               <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
-              <p className="mt-2 text-[2rem] font-medium leading-none tabular-nums text-foreground">
+              <p className="mt-2 text-[2rem] font-semibold leading-none tabular-nums text-foreground">
                 {card.value}
               </p>
             </div>
@@ -251,7 +251,7 @@ export default function DashboardPage() {
             </span>
             <p className="metric-card-hint col-span-full">{card.hint}</p>
             <span className="col-span-full flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-              Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„
+              عرض التفاصيل
               <ChevronLeft className="h-3.5 w-3.5" />
             </span>
           </Link>
@@ -262,13 +262,13 @@ export default function DashboardPage() {
         <div className="page-shell p-5 md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-heading-kicker">ØºØ±ÙØ© Ø§Ù„Ù‚Ø±Ø§Ø±Ø§Øª</p>
-              <h2 className="mt-2 text-2xl font-medium text-foreground">
-                Ø§Ù„Ù‚Ø±Ø§Ø±Ø§Øª Ø§Ù„ØªÙŠ ØªØ­Ø±Ùƒ Ø§Ù„Ù…Ø¨Ù†Ù‰
+              <p className="section-heading-kicker">غرفة القرارات</p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">
+                القرارات التي تحرك المبنى
               </h2>
             </div>
             <Link href={`/buildings/${building.id}/decisions`} className="section-heading-link">
-              ÙØªØ­ Ù…Ø³Ø§Ø­Ø© Ø§Ù„ØªØµÙˆÙŠØª
+              فتح مساحة التصويت
             </Link>
           </div>
 
@@ -276,7 +276,7 @@ export default function DashboardPage() {
             {displayDecisions.length === 0 ? (
               <div className="rounded-[1.5rem] border border-dashed border-border bg-muted/45 px-5 py-8 text-center">
                 <Vote className="mx-auto h-11 w-11 text-muted-foreground/55" />
-                <p className="mt-4 text-base font-medium text-foreground">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù‚Ø±Ø§Ø±Ø§Øª Ù…ÙØªÙˆØ­Ø©</p>
+                <p className="mt-4 text-base font-medium text-foreground">لا توجد قرارات مفتوحة</p>
               </div>
             ) : (
               displayDecisions.map((decision) => {
@@ -310,21 +310,21 @@ export default function DashboardPage() {
                             {getCategoryLabel(decision.category)}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {daysLeft > 0 ? `${daysLeft} ÙŠÙˆÙ… Ù…ØªØ¨Ù‚ÙŠ` : 'Ø§Ù†ØªÙ‡Øª Ø§Ù„Ù…Ù‡Ù„Ø©'}
+                            {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
                           </span>
                         </div>
-                        <h3 className="mt-3 text-lg font-medium text-foreground">{decision.title}</h3>
+                        <h3 className="mt-3 text-lg font-semibold text-foreground">{decision.title}</h3>
                         <p className="mt-2 text-sm leading-7 text-muted-foreground">
                           {decision.description}
                         </p>
                       </div>
                       <div className="min-w-40 rounded-[1.2rem] border border-border/70 bg-muted/45 px-4 py-3">
-                        <p className="text-xs text-muted-foreground">Ø§Ù„ØªÙ‚Ø¯Ù…</p>
-                        <p className="mt-2 text-2xl font-medium tabular-nums text-foreground">
-                          {voteProgress}Ùª
+                        <p className="text-xs text-muted-foreground">التقدم</p>
+                        <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
+                          {voteProgress}٪
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {decisionVotes.length} Ù…Ù„Ø§Ùƒ ÙŠÙ…Ø«Ù„ÙˆÙ† {Math.round(votedAreaWeight)}Ùª
+                          {decisionVotes.length} ملاك يمثلون {Math.round(votedAreaWeight)}٪
                         </p>
                       </div>
                     </div>
@@ -339,20 +339,20 @@ export default function DashboardPage() {
                     <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
                       {userCanVote && !userVote && (
                         <span className="status-pill border-warning/20 bg-warning/10 text-warning">
-                          Ù„Ù… ØªØµÙˆÙ‘Øª Ø¨Ø¹Ø¯
+                          لم تصوّت بعد
                         </span>
                       )}
                       {userCanVote && userVote && (
                         <span className="status-pill border-success/20 bg-success/10 text-success">
-                          ØµÙˆÙ‘ØªØª: {getVoteOptionLabel(userVote.option)}
+                          صوّتت: {getVoteOptionLabel(userVote.option)}
                         </span>
                       )}
                       <span className="text-muted-foreground">
-                        Ø£Ù†Ø´Ø£Ù‡{' '}
+                        أنشأه{' '}
                         {getOwnerById(decision.createdBy, owners)?.fullName
                           .split(' ')
                           .slice(0, 2)
-                          .join(' ') || 'Ù…Ø¬Ù‡ÙˆÙ„'}
+                          .join(' ') || 'مجهول'}
                       </span>
                     </div>
                   </div>
@@ -366,13 +366,13 @@ export default function DashboardPage() {
           <div className="page-shell p-5 md:p-6">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="section-heading-kicker">Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØµÙŠØ§Ù†Ø©</p>
-                <h2 className="mt-2 text-2xl font-medium text-foreground">
-                  Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØªÙŠ ØªØ­ØªØ§Ø¬ Ù…ØªØ§Ø¨Ø¹Ø©
+                <p className="section-heading-kicker">طلبات الصيانة</p>
+                <h2 className="mt-2 text-2xl font-semibold text-foreground">
+                  الطلبات التي تحتاج متابعة
                 </h2>
               </div>
               <Link href={`/buildings/${building.id}/maintenance`} className="section-heading-link">
-                Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø·Ù„Ø¨Ø§Øª
+                إدارة الطلبات
               </Link>
             </div>
 
@@ -390,8 +390,8 @@ export default function DashboardPage() {
                         <p className="text-base font-medium text-foreground">{request.title}</p>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {request.unitId
-                            ? `Ø§Ù„ÙˆØ­Ø¯Ø© ${units.find((unit) => unit.id === request.unitId)?.unitNumber || ''}`
-                            : 'Ø§Ù„Ù…Ø±Ø§ÙÙ‚ Ø§Ù„Ù…Ø´ØªØ±ÙƒØ©'}
+                            ? `الوحدة ${units.find((unit) => unit.id === request.unitId)?.unitNumber || ''}`
+                            : 'المرافق المشتركة'}
                         </p>
                       </div>
                       {(() => {
@@ -400,14 +400,14 @@ export default function DashboardPage() {
                         return (
                           <span className={cn('status-pill shrink-0', statusStyle.badge)}>
                             <span className={cn('h-1.5 w-1.5 rounded-full', statusStyle.dot)} />
-                            {request.status === 'new' ? 'Ø¬Ø¯ÙŠØ¯' : 'Ù‚ÙŠØ¯ Ø§Ù„ØªÙ†ÙÙŠØ°'}
+                            {request.status === 'new' ? 'جديد' : 'قيد التنفيذ'}
                           </span>
                         )
                       })()}
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                       <span>{getPriorityLabel(request.priority)}</span>
-                      <span>Â·</span>
+                      <span>·</span>
                       <span>
                         {getOwnerById(request.requesterId, owners)?.fullName
                           .split(' ')
@@ -421,24 +421,24 @@ export default function DashboardPage() {
           </div>
 
           <div className="hidden page-shell p-5 xl:block md:p-6">
-            <p className="section-heading-kicker">Ù…Ø¤Ø´Ø±Ø§Øª Ø§Ù„Ù…Ø¨Ù†Ù‰</p>
+            <p className="section-heading-kicker">مؤشرات المبنى</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
               <SignalTile
-                label="Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙˆØ­Ø¯Ø§Øª"
+                label="إجمالي الوحدات"
                 value={building.unitCount}
-                note="Ù…Ø³Ø¬Ù„Ø© ÙÙŠ Ø³Ø¬Ù„ Ø§Ù„Ù…Ø¨Ù†Ù‰"
+                note="مسجلة في سجل المبنى"
                 tone="default"
               />
               <SignalTile
-                label="Ø§Ù„Ø¥Ø´ØºØ§Ù„"
-                value={`${occupancyRate}Ùª`}
-                note={`${occupiedUnits} ÙˆØ­Ø¯Ø© Ù…Ø´ØºÙˆÙ„Ø© Ø­Ø§Ù„ÙŠØ§Ù‹`}
+                label="الإشغال"
+                value={`${occupancyRate}٪`}
+                note={`${occupiedUnits} وحدة مشغولة حالياً`}
                 tone="primary"
               />
               <SignalTile
-                label="Ø·Ù„Ø¨Ø§Øª Ù…ÙØªÙˆØ­Ø©"
+                label="طلبات مفتوحة"
                 value={activeMaintenanceCount}
-                note="ØµÙŠØ§Ù†Ø© Ø¬Ø¯ÙŠØ¯Ø© Ø£Ùˆ Ù‚ÙŠØ¯ Ø§Ù„ØªÙ†ÙÙŠØ°"
+                note="صيانة جديدة أو قيد التنفيذ"
                 tone="warning"
               />
             </div>
@@ -450,18 +450,18 @@ export default function DashboardPage() {
         <div className="page-shell p-5 md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-heading-kicker">Ø¢Ø®Ø± Ø§Ù„Ù†Ø´Ø§Ø·</p>
-              <h2 className="mt-2 text-2xl font-medium text-foreground">Ø¢Ø®Ø± Ø§Ù„ØªØ­Ø¯ÙŠØ«Ø§Øª</h2>
+              <p className="section-heading-kicker">آخر النشاط</p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">آخر التحديثات</h2>
             </div>
           </div>
 
           <div className="mt-6 space-y-5">
             {recentActivity.map((activity, activityIndex) => {
               const actor = getOwnerById(activity.actorId, owners)
-              const actorName = actor?.fullName.split(' ').slice(0, 2).join(' ') || 'Ù…Ø¬Ù‡ÙˆÙ„'
+              const actorName = actor?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'
               const description = activity.descriptionAr
                 .replace(actor?.fullName || '', '')
-                .replace(/^[\sâ€”â€“-]+/, '')
+                .replace(/^[\s—–-]+/, '')
               const dotColor = actionDotColor[activity.action] || 'bg-muted-foreground'
 
               return (
@@ -472,7 +472,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="pb-5">
                     <p className="text-sm leading-7 text-muted-foreground">
-                      <span className="font-medium text-foreground">{actorName}</span>{' '}
+                      <span className="font-semibold text-foreground">{actorName}</span>{' '}
                       {description}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -488,13 +488,13 @@ export default function DashboardPage() {
         <div className="hidden page-shell p-5 md:block md:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-heading-kicker">Ù„Ù…Ø­Ø© Ø¹Ù† Ø§Ù„Ø£Ø¹Ø¶Ø§Ø¡</p>
-              <h2 className="mt-2 text-2xl font-medium text-foreground">
-                Ø§Ù„Ù…Ù„Ø§Ùƒ ÙˆØ§Ù„Ø£Ø¯ÙˆØ§Ø± ÙˆØ§Ù„ØªÙ…Ø«ÙŠÙ„
+              <p className="section-heading-kicker">لمحة عن الأعضاء</p>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">
+                الملاك والأدوار والتمثيل
               </h2>
             </div>
             <Link href={`/buildings/${building.id}/association`} className="section-heading-link">
-              ÙØªØ­ Ø³Ø¬Ù„ Ø§Ù„Ø¬Ù…Ø¹ÙŠØ©
+              فتح سجل الجمعية
             </Link>
           </div>
 
@@ -512,15 +512,15 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-base font-medium text-foreground">{owner.fullName}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {ownerRole ? getRoleLabel(ownerRole.role) : 'Ù…Ø§Ù„Ùƒ'}
+                        {ownerRole ? getRoleLabel(ownerRole.role) : 'مالك'}
                       </p>
                     </div>
                     <div className="rounded-full border border-border/70 bg-muted/55 px-3 py-1 text-xs font-medium text-foreground">
-                      {ownerUnits.length} ÙˆØ­Ø¯Ø©
+                      {ownerUnits.length} وحدة
                     </div>
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground">
-                    {ownerUnits.map((unit) => unit.unitNumber).join('ØŒ ')}
+                    {ownerUnits.map((unit) => unit.unitNumber).join('، ')}
                   </p>
                 </div>
               )
@@ -546,7 +546,7 @@ function SignalTile({
   return (
     <div className={cn('rounded-[1.25rem] border px-3.5 py-3', signalToneStyles[tone])}>
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1.5 text-[1.7rem] font-medium leading-none tabular-nums text-foreground">
+      <p className="mt-1.5 text-[1.7rem] font-semibold leading-none tabular-nums text-foreground">
         {value}
       </p>
       <p className="mt-1.5 text-sm text-muted-foreground">{note}</p>

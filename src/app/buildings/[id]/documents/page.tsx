@@ -338,7 +338,7 @@ export default function DocumentsPage() {
           {viewDoc && (
             <>
               <div className="mb-1 flex items-center justify-between border-b border-border pb-4">
-                <MishaLogo showEnglish={false} compact markSize={28} />
+                <MishaLogo showEnglish={false} compact markSize={30} />
                 <span className="text-xs font-medium text-muted-foreground">مستند</span>
               </div>
               <DialogHeader>

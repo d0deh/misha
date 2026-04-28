@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useRef, useState } from 'react'
 import { Send } from 'lucide-react'
@@ -72,18 +72,18 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
 
   function handleStartProgress(reqId: string) {
     appData.updateRequestStatus(reqId, 'in_progress', userId)
-    toast('ØªÙ… Ø¨Ø¯Ø¡ Ø§Ù„ØªÙ†ÙÙŠØ°')
+    toast('تم بدء التنفيذ')
   }
 
   function handleComplete(reqId: string) {
     appData.updateRequestStatus(reqId, 'completed', userId)
-    toast('ØªÙ… Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²')
+    toast('تم الإنجاز')
   }
 
   function handleCancelRequest() {
     if (!requestId) return
     appData.updateRequestStatus(requestId, 'cancelled', userId)
-    toast('ØªÙ… Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø·Ù„Ø¨')
+    toast('تم إلغاء الطلب')
   }
 
   // --- Vendor & cost ---
@@ -92,21 +92,21 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
     const vendor = vendorInputRef.current?.value.trim() || ''
     if (!vendor) return
     appData.assignVendor(reqId, vendor)
-    toast('ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ù‚Ø§ÙˆÙ„')
+    toast('تم حفظ المقاول')
   }
 
   function handleSaveCostEstimate(reqId: string) {
     const val = parseFloat(costEstimateInputRef.current?.value || '')
     if (isNaN(val)) return
     appData.updateCosts(reqId, { costEstimate: val })
-    toast('ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ù…Ù‚Ø¯Ø±Ø©')
+    toast('تم حفظ التكلفة المقدرة')
   }
 
   function handleSaveFinalCost(reqId: string) {
     const val = parseFloat(finalCostInputRef.current?.value || '')
     if (isNaN(val)) return
     appData.updateCosts(reqId, { finalCost: val })
-    toast('ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠØ©')
+    toast('تم حفظ التكلفة النهائية')
   }
 
   // --- Comments ---
@@ -114,7 +114,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
   function handleAddComment(reqId: string) {
     if (!commentText.trim()) return
     appData.addComment(reqId, userId, commentText.trim())
-    toast('ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„ØªØ¹Ù„ÙŠÙ‚')
+    toast('تم إضافة التعليق')
     setCommentDraft({ requestId: reqId, text: '' })
   }
 
@@ -128,9 +128,9 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                 <div className="bg-shell p-5 pe-12 text-shell-foreground">
                   <SheetHeader className="p-0">
                     <SheetDescription className="text-shell-muted text-xs">
-                      Ø¨ÙŠØ§Ù†Ø§Øª Ø·Ù„Ø¨ Ø§Ù„ØµÙŠØ§Ù†Ø©
+                      بيانات طلب الصيانة
                     </SheetDescription>
-                    <SheetTitle className="text-lg font-medium text-shell-foreground">
+                    <SheetTitle className="text-lg font-semibold text-shell-foreground">
                       {selectedRequest.title}
                     </SheetTitle>
                   </SheetHeader>
@@ -152,31 +152,31 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                 </div>
 
                 <div className="p-5 space-y-5">
-                  <DetailSection title="ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø·Ù„Ø¨">
+                  <DetailSection title="تفاصيل الطلب">
                     <DetailRow
-                      label="Ø§Ù„Ù†ÙˆØ¹"
-                      value={selectedRequest.type === 'general' ? 'Ø¹Ø§Ù…' : 'Ø®Ø§Øµ'}
+                      label="النوع"
+                      value={selectedRequest.type === 'general' ? 'عام' : 'خاص'}
                     />
                     {selectedUnit && (
-                      <DetailRow label="Ø§Ù„ÙˆØ­Ø¯Ø©" value={`Ø§Ù„ÙˆØ­Ø¯Ø© ${selectedUnit.unitNumber}`} />
+                      <DetailRow label="الوحدة" value={`الوحدة ${selectedUnit.unitNumber}`} />
                     )}
                     <DetailRow
-                      label="Ù…Ù‚Ø¯Ù… Ø§Ù„Ø·Ù„Ø¨"
-                      value={selectedRequester?.fullName || 'â€”'}
+                      label="مقدم الطلب"
+                      value={selectedRequester?.fullName || '—'}
                     />
                     <div>
-                      <p className="mb-1 text-sm text-muted-foreground">Ø§Ù„ÙˆØµÙ</p>
+                      <p className="mb-1 text-sm text-muted-foreground">الوصف</p>
                       <p className="text-base leading-relaxed text-foreground/85">
                         {selectedRequest.description}
                       </p>
                     </div>
                   </DetailSection>
 
-                  {/* Comment thread â€” positioned prominently */}
+                  {/* Comment thread — positioned prominently */}
                   <Separator className="bg-border" />
-                  <DetailSection title="Ø§Ù„ØªØ¹Ù„ÙŠÙ‚Ø§Øª">
+                  <DetailSection title="التعليقات">
                     {selectedComments.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Ù„Ø§ ØªÙˆØ¬Ø¯ ØªØ¹Ù„ÙŠÙ‚Ø§Øª Ø¨Ø¹Ø¯</p>
+                      <p className="text-sm text-muted-foreground">لا توجد تعليقات بعد</p>
                     ) : (
                       <div className="space-y-3">
                         {selectedComments.map((c) => {
@@ -185,7 +185,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                             <div key={c.id} className="rounded-xl border border-border/70 bg-muted/40 p-3">
                               <div className="mb-1 flex items-center justify-between gap-2">
                                 <span className="text-sm font-medium text-foreground">
-                                  {author?.fullName.split(' ').slice(0, 2).join(' ') || 'â€”'}
+                                  {author?.fullName.split(' ').slice(0, 2).join(' ') || '—'}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
                                   {formatRelativeTime(c.timestamp)}
@@ -205,7 +205,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                         onChange={(e) =>
                           setCommentDraft({ requestId: selectedRequest.id, text: e.target.value })
                         }
-                        placeholder="Ø£Ø¶Ù ØªØ¹Ù„ÙŠÙ‚Ø§Ù‹..."
+                        placeholder="أضف تعليقاً..."
                         className="min-h-10 flex-1 border-border focus-visible:ring-ring"
                       />
                       <Button
@@ -215,7 +215,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                         onClick={() => handleAddComment(selectedRequest.id)}
                       >
                         <Send className="h-3.5 w-3.5" />
-                        Ø¥Ø±Ø³Ø§Ù„
+                        إرسال
                       </Button>
                     </div>
                   </DetailSection>
@@ -224,38 +224,38 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   {(selectedRequest.status === 'new' || selectedRequest.status === 'in_progress') && (
                     <>
                       <Separator className="bg-border" />
-                      <DetailSection title="Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª">
+                      <DetailSection title="إجراءات">
                         <div className="flex flex-wrap gap-2">
                           {selectedRequest.status === 'new' && (
                             <PermissionButton
                               hasPermission={showManagement}
-                              tooltipText="Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© ÙÙ‚Ø·"
+                              tooltipText="للإدارة فقط"
                               size="sm"
                               className="bg-primary text-primary-foreground hover:bg-primary/90"
                               onClick={() => handleStartProgress(selectedRequest.id)}
                             >
-                              Ø¨Ø¯Ø¡ Ø§Ù„ØªÙ†ÙÙŠØ°
+                              بدء التنفيذ
                             </PermissionButton>
                           )}
                           {selectedRequest.status === 'in_progress' && (
                             <PermissionButton
                               hasPermission={showManagement}
-                              tooltipText="Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© ÙÙ‚Ø·"
+                              tooltipText="للإدارة فقط"
                               size="sm"
                               className="bg-success text-white hover:bg-success/90"
                               onClick={() => setConfirmCompleteOpen(true)}
                             >
-                              ØªÙ… Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²
+                              تم الإنجاز
                             </PermissionButton>
                           )}
                           <PermissionButton
                             hasPermission={showManagement}
-                            tooltipText="Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© ÙÙ‚Ø·"
+                            tooltipText="للإدارة فقط"
                             variant="destructive"
                             size="sm"
                             onClick={() => setConfirmCancelOpen(true)}
                           >
-                            Ø¥Ù„ØºØ§Ø¡
+                            إلغاء
                           </PermissionButton>
                         </div>
                       </DetailSection>
@@ -266,16 +266,16 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   {showManagement && (
                     <>
                       <Separator className="bg-border" />
-                      <DetailSection title="Ø§Ù„ØªÙ†ÙÙŠØ°">
+                      <DetailSection title="التنفيذ">
                         <div className="space-y-3">
                           <div>
-                            <Label className="mb-1 text-sm text-muted-foreground">Ø§Ù„Ù…Ù‚Ø§ÙˆÙ„</Label>
+                            <Label className="mb-1 text-sm text-muted-foreground">المقاول</Label>
                             <div className="flex items-center gap-2">
                               <Input
                                 key={`vendor-${selectedRequest.id}`}
                                 ref={vendorInputRef}
                                 defaultValue={selectedRequest.assignedVendor || ''}
-                                placeholder="Ø§Ø³Ù… Ø§Ù„Ù…Ù‚Ø§ÙˆÙ„"
+                                placeholder="اسم المقاول"
                                 className="flex-1 border-border focus-visible:ring-ring"
                               />
                               <Button
@@ -283,12 +283,12 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                                 variant="outline"
                                 onClick={() => handleSaveVendor(selectedRequest.id)}
                               >
-                                Ø­ÙØ¸
+                                حفظ
                               </Button>
                             </div>
                           </div>
                           <div>
-                            <Label className="mb-1 text-sm text-muted-foreground">Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ù…Ù‚Ø¯Ø±Ø© (Ø±ÙŠØ§Ù„)</Label>
+                            <Label className="mb-1 text-sm text-muted-foreground">التكلفة المقدرة (ريال)</Label>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
@@ -307,13 +307,13 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                                 variant="outline"
                                 onClick={() => handleSaveCostEstimate(selectedRequest.id)}
                               >
-                                Ø­ÙØ¸
+                                حفظ
                               </Button>
                             </div>
                           </div>
                           {selectedRequest.status === 'completed' && (
                             <div>
-                              <Label className="mb-1 text-sm text-muted-foreground">Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠØ© (Ø±ÙŠØ§Ù„)</Label>
+                              <Label className="mb-1 text-sm text-muted-foreground">التكلفة النهائية (ريال)</Label>
                               <div className="flex items-center gap-2">
                                 <Input
                                   type="number"
@@ -332,7 +332,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                                   variant="outline"
                                   onClick={() => handleSaveFinalCost(selectedRequest.id)}
                                 >
-                                  Ø­ÙØ¸
+                                  حفظ
                                 </Button>
                               </div>
                             </div>
@@ -343,9 +343,9 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                   )}
 
                   <Separator className="bg-border" />
-                  <DetailSection title="Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®">
+                  <DetailSection title="التواريخ">
                     <DetailRow
-                      label="ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¥Ù†Ø´Ø§Ø¡"
+                      label="تاريخ الإنشاء"
                       value={new Date(selectedRequest.createdAt).toLocaleDateString('ar-SA', {
                         year: 'numeric',
                         month: 'long',
@@ -353,7 +353,7 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
                       })}
                     />
                     <DetailRow
-                      label="Ø¢Ø®Ø± ØªØ­Ø¯ÙŠØ«"
+                      label="آخر تحديث"
                       value={new Date(selectedRequest.updatedAt).toLocaleDateString('ar-SA', {
                         year: 'numeric',
                         month: 'long',
@@ -372,10 +372,10 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
       <ConfirmDialog
         open={confirmCompleteOpen}
         onOpenChange={setConfirmCompleteOpen}
-        title="Ø¥ØªÙ…Ø§Ù… Ø·Ù„Ø¨ Ø§Ù„ØµÙŠØ§Ù†Ø©"
-        description="Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ø£Ù† Ø§Ù„Ø¹Ù…Ù„ Ø§ÙƒØªÙ…Ù„ØŸ Ø³ÙŠØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø© Ø¥Ù„Ù‰ Ù…ÙƒØªÙ…Ù„."
-        confirmLabel="ØªÙ… Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²"
-        cancelLabel="ØªØ±Ø§Ø¬Ø¹"
+        title="إتمام طلب الصيانة"
+        description="هل أنت متأكد أن العمل اكتمل؟ سيتم تحديث الحالة إلى مكتمل."
+        confirmLabel="تم الإنجاز"
+        cancelLabel="تراجع"
         onConfirm={() => {
           if (requestId) handleComplete(requestId)
         }}
@@ -385,10 +385,10 @@ export function RequestDetailSheet({ requestId, open, onOpenChange }: RequestDet
       <ConfirmDialog
         open={confirmCancelOpen}
         onOpenChange={setConfirmCancelOpen}
-        title="Ø¥Ù„ØºØ§Ø¡ Ø·Ù„Ø¨ Ø§Ù„ØµÙŠØ§Ù†Ø©"
-        description="Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø¥Ù„ØºØ§Ø¡ Ù‡Ø°Ø§ Ø§Ù„Ø·Ù„Ø¨ØŸ Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡."
-        confirmLabel="Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø·Ù„Ø¨"
-        cancelLabel="ØªØ±Ø§Ø¬Ø¹"
+        title="إلغاء طلب الصيانة"
+        description="هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmLabel="إلغاء الطلب"
+        cancelLabel="تراجع"
         variant="destructive"
         onConfirm={handleCancelRequest}
       />

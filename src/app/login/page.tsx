@@ -9,7 +9,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10 text-foreground">
       <section className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(28,28,28,0.03)] md:p-8">
         <div className="flex flex-col items-center text-center">
-          <MishaMark size={56} tone="brand" />
+          <MishaMark size={64} tone="brand" />
           <MishaWordmark className="mt-5 items-center" showEnglish={false} />
           <h1 className="mt-8 text-2xl font-medium text-foreground">مرحباً بعودتك</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
