@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useMemo, useState } from 'react'
 import { Phone, Plus, Search } from 'lucide-react'
@@ -71,17 +71,17 @@ const feeStatusStyles: Record<string, { dot: string; badge: string; label: strin
   paid: {
     dot: 'bg-success',
     badge: 'border-success/20 bg-success/10 text-success',
-    label: 'مدفوع',
+    label: 'Ù…Ø¯ÙÙˆØ¹',
   },
   partial: {
     dot: 'bg-warning',
     badge: 'border-warning/20 bg-warning/10 text-warning',
-    label: 'جزئي',
+    label: 'Ø¬Ø²Ø¦ÙŠ',
   },
   unpaid: {
     dot: 'bg-destructive',
     badge: 'border-destructive/20 bg-destructive/10 text-destructive',
-    label: 'غير مدفوع',
+    label: 'ØºÙŠØ± Ù…Ø¯ÙÙˆØ¹',
   },
 }
 
@@ -102,7 +102,7 @@ export default function AssociationPage() {
   const [ownerSearch, setOwnerSearch] = useState('')
   const [minutesOpen, setMinutesOpen] = useState(false)
   const [minutesDate, setMinutesDate] = useState('')
-  const [minutesTitle, setMinutesTitle] = useState('محضر اجتماع ')
+  const [minutesTitle, setMinutesTitle] = useState('Ù…Ø­Ø¶Ø± Ø§Ø¬ØªÙ…Ø§Ø¹ ')
   const [minutesSummary, setMinutesSummary] = useState('')
 
   function handleMinutesSubmit() {
@@ -110,7 +110,7 @@ export default function AssociationPage() {
 
     addDocument(
       {
-        title: minutesTitle.trim() || `محضر اجتماع ${minutesDate}`,
+        title: minutesTitle.trim() || `Ù…Ø­Ø¶Ø± Ø§Ø¬ØªÙ…Ø§Ø¹ ${minutesDate}`,
         documentType: 'minutes',
         entityType: 'association',
         entityId: association.id,
@@ -123,10 +123,10 @@ export default function AssociationPage() {
       userId
     )
 
-    toast('تم إنشاء محضر الاجتماع بنجاح')
+    toast('ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø­Ø¶Ø± Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ Ø¨Ù†Ø¬Ø§Ø­')
     setMinutesOpen(false)
     setMinutesDate('')
-    setMinutesTitle('محضر اجتماع ')
+    setMinutesTitle('Ù…Ø­Ø¶Ø± Ø§Ø¬ØªÙ…Ø§Ø¹ ')
     setMinutesSummary('')
   }
 
@@ -141,7 +141,7 @@ export default function AssociationPage() {
       return {
         ownerId: fee.ownerId,
         ownerName: owner?.fullName || '',
-        unitNumbers: ownerUnits.map((unit) => unit.unitNumber).join('، '),
+        unitNumbers: ownerUnits.map((unit) => unit.unitNumber).join('ØŒ '),
         amountDue: fee.annualAmount,
         amountPaid: fee.paidAmount,
         status: fee.status,
@@ -157,10 +157,10 @@ export default function AssociationPage() {
     <div className="space-y-6">
       <PageHeader>
         <PageHeaderBody>
-          <PageHeaderEyebrow>سجل الجمعية</PageHeaderEyebrow>
-          <PageHeaderTitle>الجمعية والأعضاء</PageHeaderTitle>
+          <PageHeaderEyebrow>Ø³Ø¬Ù„ Ø§Ù„Ø¬Ù…Ø¹ÙŠØ©</PageHeaderEyebrow>
+          <PageHeaderTitle>Ø§Ù„Ø¬Ù…Ø¹ÙŠØ© ÙˆØ§Ù„Ø£Ø¹Ø¶Ø§Ø¡</PageHeaderTitle>
           <PageHeaderDescription>
-            {association.name} · رقم التسجيل{' '}
+            {association.name} Â· Ø±Ù‚Ù… Ø§Ù„ØªØ³Ø¬ÙŠÙ„{' '}
             <span className="tabular-nums" dir="ltr">
               {association.registrationNumber}
             </span>
@@ -169,12 +169,12 @@ export default function AssociationPage() {
         <PageHeaderActions>
           <PermissionButton
             hasPermission={isAdmin}
-            tooltipText="فقط رئيس الجمعية أو نائبه يمكنه إنشاء محاضر"
+            tooltipText="ÙÙ‚Ø· Ø±Ø¦ÙŠØ³ Ø§Ù„Ø¬Ù…Ø¹ÙŠØ© Ø£Ùˆ Ù†Ø§Ø¦Ø¨Ù‡ ÙŠÙ…ÙƒÙ†Ù‡ Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø­Ø§Ø¶Ø±"
             size="sm"
             onClick={() => setMinutesOpen(true)}
           >
             <Plus className="h-4 w-4" data-icon="inline-start" />
-            محضر اجتماع جديد
+            Ù…Ø­Ø¶Ø± Ø§Ø¬ØªÙ…Ø§Ø¹ Ø¬Ø¯ÙŠØ¯
           </PermissionButton>
         </PageHeaderActions>
       </PageHeader>
@@ -182,7 +182,7 @@ export default function AssociationPage() {
       <div className="page-shell p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-lg font-semibold text-foreground">{association.name}</p>
+            <p className="text-lg font-medium text-foreground">{association.name}</p>
             <p className="mt-0.5 text-sm text-muted-foreground tabular-nums" dir="ltr">
               {association.registrationNumber}
             </p>
@@ -197,10 +197,10 @@ export default function AssociationPage() {
       <section className="page-shell p-5 md:p-6">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <p className="section-heading-kicker">مجلس الإدارة</p>
-            <h2 className="mt-2 text-xl font-semibold text-foreground">الأعضاء والدور التنفيذي</h2>
+            <p className="section-heading-kicker">Ù…Ø¬Ù„Ø³ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©</p>
+            <h2 className="mt-2 text-xl font-medium text-foreground">Ø§Ù„Ø£Ø¹Ø¶Ø§Ø¡ ÙˆØ§Ù„Ø¯ÙˆØ± Ø§Ù„ØªÙ†ÙÙŠØ°ÙŠ</h2>
           </div>
-          <p className="text-sm text-muted-foreground">{boardCount} أعضاء</p>
+          <p className="text-sm text-muted-foreground">{boardCount} Ø£Ø¹Ø¶Ø§Ø¡</p>
         </div>
 
         <div className="divide-y divide-border/70 overflow-hidden rounded-[1.25rem] border border-border/80 bg-muted/20">
@@ -236,15 +236,15 @@ export default function AssociationPage() {
         <section className="space-y-3">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-heading-kicker">قائمة الملاك</p>
-              <h2 className="mt-2 text-xl font-semibold text-foreground">التمثيل والملكية</h2>
+              <p className="section-heading-kicker">Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ù„Ø§Ùƒ</p>
+              <h2 className="mt-2 text-xl font-medium text-foreground">Ø§Ù„ØªÙ…Ø«ÙŠÙ„ ÙˆØ§Ù„Ù…Ù„ÙƒÙŠØ©</h2>
             </div>
           </div>
           <div className="page-shell p-4 md:p-5">
             <div className="relative">
               <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="بحث باسم المالك..."
+                placeholder="Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„Ù…Ø§Ù„Ùƒ..."
                 value={ownerSearch}
                 onChange={(event) => setOwnerSearch(event.target.value)}
                 className="ps-9"
@@ -255,10 +255,10 @@ export default function AssociationPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/45 hover:bg-muted/45">
-                  <TableHead>الاسم</TableHead>
-                  <TableHead>الدور</TableHead>
-                  {showContacts && <TableHead className="hidden md:table-cell">الهاتف</TableHead>}
-                  <TableHead className="hidden md:table-cell">الوحدات</TableHead>
+                  <TableHead>Ø§Ù„Ø§Ø³Ù…</TableHead>
+                  <TableHead>Ø§Ù„Ø¯ÙˆØ±</TableHead>
+                  {showContacts && <TableHead className="hidden md:table-cell">Ø§Ù„Ù‡Ø§ØªÙ</TableHead>}
+                  <TableHead className="hidden md:table-cell">Ø§Ù„ÙˆØ­Ø¯Ø§Øª</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -281,7 +281,7 @@ export default function AssociationPage() {
                             {isPrimary && (
                               <span className="inline-flex items-center gap-1 text-xs text-success">
                                 <span className="h-1 w-1 rounded-full bg-success" />
-                                ممثل
+                                Ù…Ù…Ø«Ù„
                               </span>
                             )}
                           </div>
@@ -298,7 +298,7 @@ export default function AssociationPage() {
                           </TableCell>
                         )}
                         <TableCell className="hidden tabular-nums text-muted-foreground md:table-cell">
-                          {unitCount} وحدة
+                          {unitCount} ÙˆØ­Ø¯Ø©
                         </TableCell>
                       </TableRow>
                     )
@@ -311,18 +311,18 @@ export default function AssociationPage() {
 
       <section className="space-y-3">
         <div>
-          <p className="section-heading-kicker">الرسوم السنوية</p>
-          <h2 className="mt-2 text-xl font-semibold text-foreground">كشف الرسوم والتحصيل</h2>
+          <p className="section-heading-kicker">Ø§Ù„Ø±Ø³ÙˆÙ… Ø§Ù„Ø³Ù†ÙˆÙŠØ©</p>
+          <h2 className="mt-2 text-xl font-medium text-foreground">ÙƒØ´Ù Ø§Ù„Ø±Ø³ÙˆÙ… ÙˆØ§Ù„ØªØ­ØµÙŠÙ„</h2>
         </div>
         <div className="data-table-shell">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/45 hover:bg-muted/45">
-                <TableHead>المالك</TableHead>
-                <TableHead className="hidden md:table-cell">الوحدات</TableHead>
-                <TableHead>المطلوب</TableHead>
-                <TableHead>المدفوع</TableHead>
-                <TableHead>الحالة</TableHead>
+                <TableHead>Ø§Ù„Ù…Ø§Ù„Ùƒ</TableHead>
+                <TableHead className="hidden md:table-cell">Ø§Ù„ÙˆØ­Ø¯Ø§Øª</TableHead>
+                <TableHead>Ø§Ù„Ù…Ø·Ù„ÙˆØ¨</TableHead>
+                <TableHead>Ø§Ù„Ù…Ø¯ÙÙˆØ¹</TableHead>
+                <TableHead>Ø§Ù„Ø­Ø§Ù„Ø©</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -337,10 +337,10 @@ export default function AssociationPage() {
                       {fee.unitNumbers}
                     </TableCell>
                     <TableCell className="text-sm tabular-nums text-foreground/85">
-                      {fee.amountDue.toLocaleString('ar-SA')} ر.س
+                      {fee.amountDue.toLocaleString('ar-SA')} Ø±.Ø³
                     </TableCell>
                     <TableCell className="text-sm tabular-nums text-foreground/85">
-                      {fee.amountPaid.toLocaleString('ar-SA')} ر.س
+                      {fee.amountPaid.toLocaleString('ar-SA')} Ø±.Ø³
                     </TableCell>
                     <TableCell>
                       <span className={cn('status-pill', style.badge)}>
@@ -358,22 +358,22 @@ export default function AssociationPage() {
           <div className="page-shell p-5">
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span>
-                الإجمالي المطلوب{' '}
-                <span className="font-semibold tabular-nums text-foreground">
-                  {totalDue.toLocaleString('ar-SA')} ر.س
+                Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨{' '}
+                <span className="font-medium tabular-nums text-foreground">
+                  {totalDue.toLocaleString('ar-SA')} Ø±.Ø³
                 </span>
               </span>
-              <span>·</span>
+              <span>Â·</span>
               <span>
-                المحصل{' '}
-                <span className="font-semibold tabular-nums text-foreground">
-                  {totalCollected.toLocaleString('ar-SA')} ر.س
+                Ø§Ù„Ù…Ø­ØµÙ„{' '}
+                <span className="font-medium tabular-nums text-foreground">
+                  {totalCollected.toLocaleString('ar-SA')} Ø±.Ø³
                 </span>
               </span>
-              <span>·</span>
+              <span>Â·</span>
               <span>
-                نسبة التحصيل{' '}
-                <span className="font-semibold tabular-nums text-foreground">{collectionRate}٪</span>
+                Ù†Ø³Ø¨Ø© Ø§Ù„ØªØ­ØµÙŠÙ„{' '}
+                <span className="font-medium tabular-nums text-foreground">{collectionRate}Ùª</span>
               </span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted/80">
@@ -387,38 +387,38 @@ export default function AssociationPage() {
       </section>
 
       <p className="text-sm text-muted-foreground">
-        {owners.length} مالك · {boardCount} أعضاء مجلس إدارة
+        {owners.length} Ù…Ø§Ù„Ùƒ Â· {boardCount} Ø£Ø¹Ø¶Ø§Ø¡ Ù…Ø¬Ù„Ø³ Ø¥Ø¯Ø§Ø±Ø©
       </p>
 
       <Dialog open={minutesOpen} onOpenChange={setMinutesOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>محضر اجتماع جديد</DialogTitle>
-            <DialogDescription>سجل محضر اجتماع الجمعية أو مجلس الإدارة</DialogDescription>
+            <DialogTitle>Ù…Ø­Ø¶Ø± Ø§Ø¬ØªÙ…Ø§Ø¹ Ø¬Ø¯ÙŠØ¯</DialogTitle>
+            <DialogDescription>Ø³Ø¬Ù„ Ù…Ø­Ø¶Ø± Ø§Ø¬ØªÙ…Ø§Ø¹ Ø§Ù„Ø¬Ù…Ø¹ÙŠØ© Ø£Ùˆ Ù…Ø¬Ù„Ø³ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label>تاريخ الاجتماع</Label>
+              <Label>ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹</Label>
               <Input type="date" value={minutesDate} onChange={(event) => setMinutesDate(event.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>العنوان</Label>
+              <Label>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†</Label>
               <Input value={minutesTitle} onChange={(event) => setMinutesTitle(event.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>الملخص والقرارات</Label>
+              <Label>Ø§Ù„Ù…Ù„Ø®Øµ ÙˆØ§Ù„Ù‚Ø±Ø§Ø±Ø§Øª</Label>
               <Textarea
                 value={minutesSummary}
                 onChange={(event) => setMinutesSummary(event.target.value)}
-                placeholder="اكتب ملخص الاجتماع والقرارات المتخذة..."
+                placeholder="Ø§ÙƒØªØ¨ Ù…Ù„Ø®Øµ Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ ÙˆØ§Ù„Ù‚Ø±Ø§Ø±Ø§Øª Ø§Ù„Ù…ØªØ®Ø°Ø©..."
                 rows={5}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleMinutesSubmit}>حفظ المحضر</Button>
+            <Button onClick={handleMinutesSubmit}>Ø­ÙØ¸ Ø§Ù„Ù…Ø­Ø¶Ø±</Button>
             <Button variant="outline" onClick={() => setMinutesOpen(false)}>
-              إلغاء
+              Ø¥Ù„ØºØ§Ø¡
             </Button>
           </DialogFooter>
         </DialogContent>

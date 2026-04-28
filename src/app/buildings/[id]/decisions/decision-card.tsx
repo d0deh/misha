@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import { Share2 } from 'lucide-react'
@@ -66,10 +66,10 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
     if (existingVote) {
       if (existingVote.option === option) return
       appData.changeVote(decision.id, userId, option)
-      toast('تم تعديل تصويتك')
+      toast('ØªÙ… ØªØ¹Ø¯ÙŠÙ„ ØªØµÙˆÙŠØªÙƒ')
     } else {
       appData.addVote(decision.id, userId, option, userName)
-      toast('تم تسجيل تصويتك')
+      toast('ØªÙ… ØªØ³Ø¬ÙŠÙ„ ØªØµÙˆÙŠØªÙƒ')
     }
   }
 
@@ -107,7 +107,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
                 )}
               >
                 {option.label}
-                {isActive && ' ✓'}
+                {isActive && ' âœ“'}
               </button>
             )
           })}
@@ -123,7 +123,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
           <div className="overflow-hidden">
             <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/40 px-3.5 py-2.5">
               <span className="text-sm text-foreground">
-                تأكيد التصويت: <span className="font-medium">{pendingOption?.label}؟</span>
+                ØªØ£ÙƒÙŠØ¯ Ø§Ù„ØªØµÙˆÙŠØª: <span className="font-medium">{pendingOption?.label}ØŸ</span>
               </span>
               <div className="flex items-center gap-2.5">
                 <button
@@ -133,7 +133,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
                   }}
                   className="rounded-md bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 >
-                  تأكيد
+                  ØªØ£ÙƒÙŠØ¯
                 </button>
                 <button
                   onClick={(event) => {
@@ -143,7 +143,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
                   }}
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  إلغاء
+                  Ø¥Ù„ØºØ§Ø¡
                 </button>
               </div>
             </div>
@@ -176,21 +176,21 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
       <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">{decision.description}</p>
 
       <p className="mb-3 text-sm text-muted-foreground">
-        أنشأه {creator?.fullName.split(' ').slice(0, 2).join(' ') || 'مجهول'}
+        Ø£Ù†Ø´Ø£Ù‡ {creator?.fullName.split(' ').slice(0, 2).join(' ') || 'Ù…Ø¬Ù‡ÙˆÙ„'}
       </p>
 
       {isOpen ? (
         <>
           <div className="mb-3">
             <div className="mb-1.5 flex items-baseline justify-between">
-              <span className="text-base font-semibold tabular-nums text-foreground">
-                {voteProgress}٪
+              <span className="text-base font-medium tabular-nums text-foreground">
+                {voteProgress}Ùª
                 <span className="ms-1.5 text-xs font-normal text-muted-foreground">
-                  من المساحة مُمثَّلة
+                  Ù…Ù† Ø§Ù„Ù…Ø³Ø§Ø­Ø© Ù…ÙÙ…Ø«ÙŽÙ‘Ù„Ø©
                 </span>
               </span>
               <span className="text-xs text-muted-foreground">
-                {decisionVotes.length} ملاك صوّتوا
+                {decisionVotes.length} Ù…Ù„Ø§Ùƒ ØµÙˆÙ‘ØªÙˆØ§
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted/80">
@@ -208,13 +208,13 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
                   ? 'rounded-md bg-warning/10 px-2 py-1 font-medium text-warning'
                   : 'text-muted-foreground'
               )}>
-                {daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت المهلة'}
+                {daysLeft > 0 ? `${daysLeft} ÙŠÙˆÙ… Ù…ØªØ¨Ù‚ÙŠ` : 'Ø§Ù†ØªÙ‡Øª Ø§Ù„Ù…Ù‡Ù„Ø©'}
               </span>
               {userCanVote && !myVote && (
-                <span className="text-xs font-medium text-warning">· لم تصوّت بعد</span>
+                <span className="text-xs font-medium text-warning">Â· Ù„Ù… ØªØµÙˆÙ‘Øª Ø¨Ø¹Ø¯</span>
               )}
               {myVote && (
-                <span className="text-xs font-medium text-success">· صوّتت: {getVoteOptionLabel(myVote.option)}</span>
+                <span className="text-xs font-medium text-success">Â· ØµÙˆÙ‘ØªØª: {getVoteOptionLabel(myVote.option)}</span>
               )}
             </div>
             <a
@@ -225,7 +225,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
             >
               <Share2 className="h-3 w-3" />
-              تذكير عبر واتساب
+              ØªØ°ÙƒÙŠØ± Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨
             </a>
           </div>
         </>
@@ -246,7 +246,7 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
             </p>
           )}
           <p className="mt-2 text-xs text-muted-foreground">
-            لأغراض تنظيمية، وللإجراء الرسمي يرجى الرجوع إلى منصة ملاك
+            Ù„Ø£ØºØ±Ø§Ø¶ ØªÙ†Ø¸ÙŠÙ…ÙŠØ©ØŒ ÙˆÙ„Ù„Ø¥Ø¬Ø±Ø§Ø¡ Ø§Ù„Ø±Ø³Ù…ÙŠ ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø±Ø¬ÙˆØ¹ Ø¥Ù„Ù‰ Ù…Ù†ØµØ© Ù…Ù„Ø§Ùƒ
           </p>
           <a
             href={getWhatsAppUrl(decision, decisionVotes, voterWeights, appData.building.name)}
@@ -256,14 +256,14 @@ export function DecisionCard({ decision, onClick }: DecisionCardProps) {
             className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
           >
             <Share2 className="h-3 w-3" />
-            مشاركة عبر واتساب
+            Ù…Ø´Ø§Ø±ÙƒØ© Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨
           </a>
         </div>
       )}
 
       {userCanVote && !isOpen && myVote && (
         <p className="mt-2 border-t border-border/70 pt-2 text-xs font-medium text-success">
-          صوّتت: {getVoteOptionLabel(myVote.option)}
+          ØµÙˆÙ‘ØªØª: {getVoteOptionLabel(myVote.option)}
         </p>
       )}
 

@@ -33,7 +33,7 @@ export default function Loading() {
 
       {/* Two-column content: decisions & activity */}
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-3 rounded-[1.4rem] border border-border/80 bg-card/96 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.03)]">
+        <div className="page-shell space-y-3 p-5">
           <div className="flex items-center justify-between">
             <Bar className="h-4 w-32" delay={240} tone="strong" />
             <Bar className="h-3 w-16" delay={280} />
@@ -42,7 +42,7 @@ export default function Loading() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="space-y-2 rounded-[1.1rem] border border-border/80 border-s-[4px] border-s-border bg-card/70 p-4"
+                className="space-y-2 rounded-xl border border-border border-s-[4px] border-s-border bg-card p-4"
               >
                 <div className="flex items-center justify-between gap-3">
                   <Bar className="h-4 w-48 md:w-64" delay={300 + i * 80} tone="strong" />
@@ -58,7 +58,7 @@ export default function Loading() {
           </div>
         </div>
 
-        <div className="space-y-3 rounded-[1.4rem] border border-border/80 bg-card/96 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.03)]">
+        <div className="page-shell space-y-3 p-5">
           <Bar className="h-4 w-28" delay={240} tone="strong" />
           <div className="space-y-4 pt-2">
             {[0, 1, 2, 3, 4].map((i) => (

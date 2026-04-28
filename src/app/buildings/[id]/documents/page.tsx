@@ -45,6 +45,7 @@ import { useAppData } from '@/lib/app-data-context'
 import { useUser, canUploadDocuments } from '@/lib/user-context'
 import { useToast } from '@/lib/use-toast'
 import { PermissionButton } from '@/components/ui/permission-button'
+import { MishaLogo } from '@/components/brand/misha-logo'
 import type { Document } from '@/lib/types'
 
 const docTypeBadgeStyles: Record<string, { dot: string; badge: string }> = {
@@ -336,6 +337,10 @@ export default function DocumentsPage() {
         <DialogContent className="sm:max-w-md">
           {viewDoc && (
             <>
+              <div className="mb-1 flex items-center justify-between border-b border-border pb-4">
+                <MishaLogo showEnglish={false} compact markSize={28} />
+                <span className="text-xs font-medium text-muted-foreground">مستند</span>
+              </div>
               <DialogHeader>
                 <DialogTitle>{viewDoc.title}</DialogTitle>
                 <DialogDescription>تفاصيل المستند</DialogDescription>

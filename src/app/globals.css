@@ -46,66 +46,66 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --font-sans: "Readex Pro", "Readex Pro Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Cairo", "Cairo Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "Segoe UI Mono", monospace;
   --font-heading: var(--font-sans);
-  --radius-sm: calc(var(--radius) * 0.55);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.35);
-  --radius-2xl: calc(var(--radius) * 1.75);
-  --radius-3xl: calc(var(--radius) * 2.1);
-  --radius-4xl: calc(var(--radius) * 2.45);
+  --radius-xl: calc(var(--radius) * 1.25);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 1.85);
+  --radius-4xl: calc(var(--radius) * 2.15);
 }
 
 :root {
-  --background: #f7f8f5;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #0d9488;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
-  --muted: #eef2ee;
-  --muted-foreground: #62716b;
-  --accent: #e4eee9;
-  --accent-foreground: #1e293b;
-  --destructive: #dc2626;
-  --destructive-foreground: #fef2f2;
-  --success: #059669;
-  --success-foreground: #ecfdf5;
-  --warning: #d97706;
-  --warning-foreground: #fffbeb;
-  --info: #0284c7;
-  --info-foreground: #f0f9ff;
-  --border: #dfe6e2;
-  --input: #dfe6e2;
-  --ring: #0d9488;
-  --shell: #123f45;
-  --shell-foreground: #f8fafc;
-  --shell-muted: #a8c8c3;
-  --chart-1: #0d9488;
-  --chart-2: #d97706;
-  --chart-3: #0284c7;
-  --chart-4: #059669;
-  --chart-5: #dc2626;
-  --radius: 0.95rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #0d9488;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0fdfa;
-  --sidebar-accent-foreground: #0d9488;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #0d9488;
+  --background: #F5F2EA;
+  --foreground: #1C1C1C;
+  --card: #FFFFFF;
+  --card-foreground: #1C1C1C;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1C1C;
+  --primary: #0B3528;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1F5E47;
+  --secondary-foreground: #FFFFFF;
+  --muted: #EFEAE0;
+  --muted-foreground: #7D9488;
+  --accent: #CDA45E;
+  --accent-foreground: #1C1C1C;
+  --destructive: #A33A32;
+  --destructive-foreground: #FFFFFF;
+  --success: #1F5E47;
+  --success-foreground: #FFFFFF;
+  --warning: #CDA45E;
+  --warning-foreground: #1C1C1C;
+  --info: #7D9488;
+  --info-foreground: #FFFFFF;
+  --border: #E6E1D8;
+  --input: #E6E1D8;
+  --ring: #1F5E47;
+  --shell: #0B3528;
+  --shell-foreground: #FFFFFF;
+  --shell-muted: #B8C6BD;
+  --chart-1: #0B3528;
+  --chart-2: #1F5E47;
+  --chart-3: #7D9488;
+  --chart-4: #CDA45E;
+  --chart-5: #A33A32;
+  --radius: 0.85rem;
+  --sidebar: #0B3528;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #0B3528;
+  --sidebar-accent: rgb(255 255 255 / 0.09);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgb(255 255 255 / 0.14);
+  --sidebar-ring: #CDA45E;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/45;
   }
 
   html {
@@ -113,29 +113,43 @@
   }
 
   body {
-    @apply min-h-screen bg-background text-foreground leading-relaxed antialiased;
-    background-image:
-      radial-gradient(circle at top, rgb(13 148 136 / 0.045), transparent 30%),
-      linear-gradient(180deg, #f7f8f5 0%, #edf2ee 100%);
+    @apply min-h-screen bg-background text-foreground antialiased;
+    font-weight: 400;
+    line-height: 1.65;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium;
+    line-height: 1.25;
+  }
+
+  label,
+  th {
+    @apply font-medium;
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--primary) 18%, white);
+    background-color: color-mix(in srgb, var(--accent) 38%, white);
     color: var(--foreground);
   }
 }
 
 @layer components {
   .page-shell {
-    @apply rounded-[1.75rem] border border-border/85 bg-card/96 shadow-[0_14px_40px_rgba(15,23,42,0.04)];
+    @apply rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(28,28,28,0.03)];
   }
 
   .page-header-block {
-    @apply flex flex-col gap-4 rounded-[1.6rem] border border-border/80 bg-card/85 px-5 py-4 shadow-[0_10px_28px_rgba(15,23,42,0.03)] md:px-6;
+    @apply flex flex-col gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-[0_1px_2px_rgba(28,28,28,0.03)] md:px-6;
   }
 
   .page-header-title {
-    @apply text-[1.75rem] leading-tight font-semibold text-foreground md:text-[2rem];
+    @apply text-[1.75rem] leading-tight font-medium text-foreground md:text-[2rem];
   }
 
   .page-header-support {
@@ -143,11 +157,11 @@
   }
 
   .section-heading-kicker {
-    @apply text-xs font-semibold text-muted-foreground;
+    @apply text-xs font-medium text-muted-foreground;
   }
 
   .section-heading-link {
-    @apply text-sm font-medium text-primary transition-colors hover:text-primary/85;
+    @apply text-sm font-medium text-primary transition-colors hover:text-secondary;
   }
 
   .status-pill {
@@ -155,11 +169,11 @@
   }
 
   .metric-card {
-    @apply grid min-h-36 grid-cols-[1fr_auto] gap-3 rounded-[1.4rem] border border-border/80 bg-card/96 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.03)] transition-colors hover:border-border hover:bg-card;
+    @apply grid min-h-32 grid-cols-[1fr_auto] gap-3 rounded-2xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,28,28,0.03)] transition-colors hover:border-primary/20;
   }
 
   .metric-card-icon {
-    @apply flex h-10 w-10 items-center justify-center rounded-2xl border border-border/60 bg-muted/55 text-muted-foreground;
+    @apply flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted/60 text-muted-foreground;
   }
 
   .metric-card-hint {
@@ -167,7 +181,7 @@
   }
 
   .data-table-shell {
-    @apply overflow-hidden rounded-[1.35rem] border border-border/85 bg-card/98 shadow-[0_10px_24px_rgba(15,23,42,0.025)];
+    @apply overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(28,28,28,0.03)];
   }
 }
 
