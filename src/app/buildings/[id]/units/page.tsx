@@ -50,6 +50,7 @@ import { PermissionButton } from '@/components/ui/permission-button'
 import { useAppData } from '@/lib/app-data-context'
 import { useToast } from '@/lib/use-toast'
 import { canManageAssociation, canSeeContactDetails, useUser } from '@/lib/user-context'
+import { unitStatusFilterItems } from '@/lib/labels'
 import {
   getOwnerRole,
   getOwnerUnits,
@@ -113,7 +114,17 @@ export default function UnitsPage() {
     setEditOpen(false)
   }
 
-  const floors = Array.from(new Set(units.map((unit) => unit.floor))).sort((a, b) => a - b)
+  const floors = useMemo(
+    () => Array.from(new Set(units.map((unit) => unit.floor))).sort((a, b) => a - b),
+    [units]
+  )
+  const floorFilterItems = useMemo(
+    () => ({
+      all: 'كل الطوابق',
+      ...Object.fromEntries(floors.map((floor) => [String(floor), `الطابق ${floor}`])),
+    }),
+    [floors]
+  )
   const occupiedCount = units.filter((unit) => unit.occupancyStatus !== 'vacant').length
   const occupancyRate = Math.round((occupiedCount / units.length) * 100)
 
@@ -187,7 +198,11 @@ export default function UnitsPage() {
               className="ps-9"
             />
           </div>
-          <Select value={floorFilter} onValueChange={(value) => setFloorFilter(value ?? '')}>
+          <Select
+            value={floorFilter}
+            onValueChange={(value) => setFloorFilter(value ?? '')}
+            items={floorFilterItems}
+          >
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="كل الطوابق" />
             </SelectTrigger>
@@ -200,7 +215,11 @@ export default function UnitsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? '')}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => setStatusFilter(value ?? '')}
+            items={unitStatusFilterItems}
+          >
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="كل الحالات" />
             </SelectTrigger>

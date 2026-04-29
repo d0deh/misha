@@ -33,6 +33,7 @@ import {
   getPriorityLabel,
   getStatusLabel,
 } from '@/lib/mock-data'
+import { maintenanceStatusFilterItems, priorityFilterItems } from '@/lib/labels'
 import { useAppData } from '@/lib/app-data-context'
 import { useUser, canManageMaintenance } from '@/lib/user-context'
 import { cn } from '@/lib/utils'
@@ -163,7 +164,11 @@ export default function MaintenancePage() {
               className="ps-9"
             />
           </div>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? '')}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => setStatusFilter(value ?? '')}
+            items={maintenanceStatusFilterItems}
+          >
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="كل الحالات" />
             </SelectTrigger>
@@ -175,7 +180,11 @@ export default function MaintenancePage() {
               <SelectItem value="cancelled">ملغي</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value ?? '')}>
+          <Select
+            value={priorityFilter}
+            onValueChange={(value) => setPriorityFilter(value ?? '')}
+            items={priorityFilterItems}
+          >
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="كل الأولويات" />
             </SelectTrigger>

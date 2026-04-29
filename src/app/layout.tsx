@@ -9,11 +9,14 @@ const cairo = Cairo({
   display: 'swap',
 })
 
+const appIconUrl = '/icon.svg?v=misha-20260428-2'
+
 export const metadata: Metadata = {
   title: 'مِشاع — إدارة الملكيات المشتركة',
   description: 'منصة سعودية لإدارة جمعيات الملاك والملكيات المشتركة بهدوء ووضوح.',
   icons: {
-    icon: '/icon.svg',
+    icon: [{ url: appIconUrl, type: 'image/svg+xml', sizes: 'any' }],
+    shortcut: [{ url: appIconUrl, type: 'image/svg+xml' }],
   },
 }
 

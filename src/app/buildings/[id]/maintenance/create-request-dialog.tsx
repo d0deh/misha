@@ -23,6 +23,7 @@ import { getOwnerUnits } from '@/lib/mock-data'
 import { useAppData } from '@/lib/app-data-context'
 import { useToast } from '@/lib/use-toast'
 import { useUser } from '@/lib/user-context'
+import { priorityLabels } from '@/lib/labels'
 
 interface CreateRequestDialogProps {
   open: boolean
@@ -154,7 +155,11 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
           </div>
           <div className="space-y-1.5">
             <Label>الأولوية</Label>
-            <Select value={newPriority} onValueChange={(v) => setNewPriority(v as typeof newPriority)} items={{ urgent: 'عاجلة', high: 'عالية', medium: 'متوسطة', low: 'منخفضة' }}>
+            <Select
+              value={newPriority}
+              onValueChange={(v) => setNewPriority(v as typeof newPriority)}
+              items={priorityLabels}
+            >
               <SelectTrigger className="border-border focus:ring-ring">
                 <SelectValue placeholder="اختر الأولوية" />
               </SelectTrigger>

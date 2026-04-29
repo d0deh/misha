@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button'
 import { useAppData } from '@/lib/app-data-context'
 import { useToast } from '@/lib/use-toast'
 import { useUser } from '@/lib/user-context'
+import { decisionCategoryLabels } from '@/lib/labels'
 
 interface CreateDecisionDialogProps {
   open: boolean
@@ -122,7 +123,11 @@ export function CreateDecisionDialog({ open, onOpenChange }: CreateDecisionDialo
           {/* Category */}
           <div className="space-y-1.5">
             <Label>التصنيف</Label>
-            <Select value={formCategory} onValueChange={(v) => setFormCategory(v as typeof formCategory)} items={{ financial: 'مالية', maintenance: 'صيانة', governance: 'حوكمة', general: 'عامة' }}>
+            <Select
+              value={formCategory}
+              onValueChange={(v) => setFormCategory(v as typeof formCategory)}
+              items={decisionCategoryLabels}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="اختر التصنيف" />
               </SelectTrigger>

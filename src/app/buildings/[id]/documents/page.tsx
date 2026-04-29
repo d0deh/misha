@@ -47,6 +47,11 @@ import { useToast } from '@/lib/use-toast'
 import { PermissionButton } from '@/components/ui/permission-button'
 import { MishaLogo } from '@/components/brand/misha-logo'
 import type { Document } from '@/lib/types'
+import {
+  documentTypeFilterItems,
+  documentTypeLabels,
+  documentVisibilityLabels,
+} from '@/lib/labels'
 
 const docTypeBadgeStyles: Record<string, { dot: string; badge: string }> = {
   statute: { dot: 'bg-primary', badge: 'border-primary/20 bg-primary/10 text-primary' },
@@ -56,12 +61,6 @@ const docTypeBadgeStyles: Record<string, { dot: string; badge: string }> = {
   report: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
   decision: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
   other: { dot: 'bg-muted-foreground', badge: 'border-border bg-muted text-muted-foreground' },
-}
-
-const visibilityLabels: Record<string, string> = {
-  everyone: 'الجميع',
-  board_only: 'مجلس الإدارة فقط',
-  owners_only: 'الملاك فقط',
 }
 
 export default function DocumentsPage() {
@@ -175,7 +174,11 @@ export default function DocumentsPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>نوع المستند</Label>
-                  <Select value={uploadType} onValueChange={(value) => setUploadType(value ?? 'other')}>
+                  <Select
+                    value={uploadType}
+                    onValueChange={(value) => setUploadType(value ?? 'other')}
+                    items={documentTypeLabels}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="اختر نوع المستند" />
                     </SelectTrigger>
@@ -194,6 +197,7 @@ export default function DocumentsPage() {
                   <Select
                     value={uploadVisibility}
                     onValueChange={(value) => setUploadVisibility(value ?? 'everyone')}
+                    items={documentVisibilityLabels}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="اختر مستوى الوصول" />
@@ -246,7 +250,11 @@ export default function DocumentsPage() {
               className="ps-9"
             />
           </div>
-          <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value ?? '')}>
+          <Select
+            value={typeFilter}
+            onValueChange={(value) => setTypeFilter(value ?? '')}
+            items={documentTypeFilterItems}
+          >
             <SelectTrigger className="w-full sm:w-44">
               <SelectValue placeholder="كل الأنواع" />
             </SelectTrigger>
@@ -361,7 +369,7 @@ export default function DocumentsPage() {
                 />
                 <DetailRow
                   label="مستوى الوصول"
-                  value={visibilityLabels[viewDoc.visibility || 'everyone']}
+                  value={documentVisibilityLabels[viewDoc.visibility || 'everyone']}
                 />
                 {viewDoc.fileSize && <DetailRow label="حجم الملف" value={viewDoc.fileSize} />}
                 {viewDoc.notes && <DetailRow label="ملاحظات" value={viewDoc.notes} />}

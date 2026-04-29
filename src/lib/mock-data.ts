@@ -12,6 +12,18 @@ import type {
   ActivityLog,
   Fee,
 } from './types'
+import {
+  associationStatusLabels,
+  buildingStatusLabels,
+  decisionCategoryLabels,
+  decisionStatusLabels,
+  documentTypeLabels,
+  maintenanceStatusLabels,
+  occupancyStatusLabels,
+  priorityLabels,
+  roleLabels,
+  voteOptionLabels,
+} from './labels'
 
 // ===== BuildingDataset Interface =====
 export interface BuildingDataset {
@@ -1555,70 +1567,30 @@ export function getDecisionVotes(decisionId: string, voteList: Vote[] = bld001Da
 }
 
 export function getRoleLabel(role: string): string {
-  const labels: Record<string, string> = {
-    chairman: 'رئيس الجمعية',
-    vice_chairman: 'نائب الرئيس',
-    board_member: 'عضو مجلس إدارة',
-    manager: 'مدير العقار',
-    owner: 'مالك',
-    resident: 'مقيم',
-  }
-  return labels[role] || role
+  return roleLabels[role as keyof typeof roleLabels] || role
 }
 
 export function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    active: 'نشط',
-    inactive: 'غير نشط',
-    suspended: 'موقوف',
-    under_formation: 'تحت التأسيس',
-    draft: 'مسودة',
-    open: 'مفتوح',
-    closed: 'مغلق',
-    approved: 'معتمد',
-    rejected: 'مرفوض',
-    new: 'جديد',
-    in_progress: 'قيد التنفيذ',
-    completed: 'مكتمل',
-    cancelled: 'ملغي',
-    vacant: 'شاغرة',
-    occupied: 'مؤجرة',
-    'owner-occupied': 'مالك مقيم',
+    ...buildingStatusLabels,
+    ...associationStatusLabels,
+    ...decisionStatusLabels,
+    ...maintenanceStatusLabels,
+    ...occupancyStatusLabels,
   }
   return labels[status] || status
 }
 
 export function getPriorityLabel(priority: string): string {
-  const labels: Record<string, string> = {
-    low: 'منخفضة',
-    medium: 'متوسطة',
-    high: 'عالية',
-    urgent: 'عاجلة',
-  }
-  return labels[priority] || priority
+  return priorityLabels[priority as keyof typeof priorityLabels] || priority
 }
 
 export function getCategoryLabel(category: string): string {
-  const labels: Record<string, string> = {
-    financial: 'مالية',
-    maintenance: 'صيانة',
-    governance: 'حوكمة',
-    general: 'عامة',
-  }
-  return labels[category] || category
+  return decisionCategoryLabels[category as keyof typeof decisionCategoryLabels] || category
 }
 
 export function getDocumentTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    statute: 'نظام أساسي',
-    minutes: 'محضر اجتماع',
-    decision: 'قرار',
-    invoice: 'فاتورة',
-    contract: 'عقد',
-    report: 'تقرير',
-    other: 'أخرى',
-  }
-  return labels[type] || type
+  return documentTypeLabels[type as keyof typeof documentTypeLabels] || type
 }
 
 // ===== User-Scoped Helpers =====
@@ -1640,10 +1612,5 @@ export function getDecisionsAwaitingVote(userId: string, decisionList: Decision[
 }
 
 export function getVoteOptionLabel(option: string): string {
-  const labels: Record<string, string> = {
-    approve: 'موافق',
-    reject: 'رافض',
-    abstain: 'ممتنع',
-  }
-  return labels[option] || option
+  return voteOptionLabels[option as keyof typeof voteOptionLabels] || option
 }
