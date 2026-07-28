@@ -30,8 +30,31 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Type check
+        run: npm run typecheck
+
       - name: Run domain tests
         run: npm test
 
       - name: Build
         run: npm run build
+
+      - name: Audit production dependencies
+        run: npm run audit
+
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan tracked history for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
