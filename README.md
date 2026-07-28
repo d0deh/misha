@@ -1,6 +1,6 @@
 # مِشاع (Misha)
 
-[![CI](https://github.com/d0deh/misha/actions/workflows/ci.yml/badge.svg)](https://github.com/d0deh/misha/actions/workflows/ci.yml)
+[![CI](https://github.com/DarwishAlmahfouz/misha/actions/workflows/ci.yml/badge.svg)](https://github.com/DarwishAlmahfouz/misha/actions/workflows/ci.yml)
 
 Saudi HOA management platform for owner associations. Day-to-day operational dashboard — not a government replacement.
 
@@ -40,14 +40,14 @@ Use the role switcher in the topbar to demo different perspectives.
 ## Quality
 
 - 25 automated domain tests for voting weights, ownership caps, and decision outcomes
-- ESLint and TypeScript checks through the production build
+- Dedicated ESLint, TypeScript, production build, dependency audit, and secret-scan gates
 - Reproducible `npm ci` installation and GitHub Actions validation
 - Synthetic demo data only; no real resident or property records
 
 ## Getting Started
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -82,3 +82,7 @@ src/
 This is a **prototype/demo** — all data is client-side and resets on refresh. No authentication, no backend, no real file uploads.
 
 See [SECURITY.md](SECURITY.md) before adapting the project for real data or production use.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
