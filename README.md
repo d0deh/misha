@@ -1,8 +1,12 @@
 # مِشاع (Misha)
 
+[![CI](https://github.com/d0deh/misha/actions/workflows/ci.yml/badge.svg)](https://github.com/d0deh/misha/actions/workflows/ci.yml)
+
 Saudi HOA management platform for owner associations. Day-to-day operational dashboard — not a government replacement.
 
 **Live demo:** https://misha-self.vercel.app
+
+![Arabic RTL Misha dashboard with voting, maintenance, occupancy, and activity summaries](docs/assets/dashboard.png)
 
 ## What is this?
 
@@ -32,6 +36,13 @@ Use the role switcher in the topbar to demo different perspectives.
 - Tailwind CSS 4 + shadcn/ui + Base UI
 - Arabic RTL with Readex Pro font
 - Client-side only (mock data, no backend)
+
+## Quality
+
+- 25 automated domain tests for voting weights, ownership caps, and decision outcomes
+- ESLint and TypeScript checks through the production build
+- Reproducible `npm ci` installation and GitHub Actions validation
+- Synthetic demo data only; no real resident or property records
 
 ## Getting Started
 
@@ -69,3 +80,5 @@ src/
 ## Status
 
 This is a **prototype/demo** — all data is client-side and resets on refresh. No authentication, no backend, no real file uploads.
+
+See [SECURITY.md](SECURITY.md) before adapting the project for real data or production use.
